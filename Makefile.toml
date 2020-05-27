@@ -1,0 +1,77 @@
+[config]
+skip_core_tasks = true
+
+
+[tasks.install]
+script = [
+	"cargo make install --cwd web-wrapper",
+]
+
+
+[tasks.game-server-start]
+script = ["cargo make start --cwd game-server"]
+
+[tasks.web-wrapper-start]
+script = ["cargo make start --cwd web-wrapper"]
+
+[tasks.start]
+run_task = { name = ["game-server-start", "web-wrapper-start"], parallel = true }
+
+
+[tasks.build]
+script = [
+	"cargo make build --cwd game-server",
+	"cargo make build --cwd web-wrapper",
+]
+
+
+[tasks.test]
+script = [
+	"cargo make test --cwd game-client",
+	"cargo make test --cwd game-server",
+	"cargo make test --cwd game-state",
+	"cargo make test --cwd peer-client",
+	"cargo make test --cwd peer-server",
+	"cargo make test --cwd web-wrapper",
+]
+
+
+[tasks.update]
+script = [
+	"cargo make update --cwd game-server",
+	"cargo make update --cwd web-wrapper",
+]
+
+
+[tasks.delete-locks]
+script = [
+	"cargo make delete-lock --cwd game-client",
+	"cargo make delete-lock --cwd game-server",
+	"cargo make delete-lock --cwd game-state",
+	"cargo make delete-lock --cwd peer-client",
+	"cargo make delete-lock --cwd peer-server",
+	"cargo make delete-lock --cwd web-wrapper",
+]
+
+
+[tasks.clean]
+script = [
+	"cargo make clean --cwd game-client",
+	"cargo make clean --cwd game-server",
+	"cargo make clean --cwd game-state",
+	"cargo make clean --cwd peer-client",
+	"cargo make clean --cwd peer-server",
+	"cargo make clean --cwd web-wrapper",
+]
+
+
+[tasks.uninstall]
+script = [
+	"cargo make clean --cwd game-client",
+	"cargo make clean --cwd game-server",
+	"cargo make clean --cwd game-state",
+	"cargo make clean --cwd peer-client",
+	"cargo make clean --cwd peer-server",
+	"cargo make uninstall --cwd web-wrapper",
+]
+

@@ -1,0 +1,60 @@
+[config]
+skip_core_tasks = true
+
+
+[tasks.cargo-start]
+script = ["cargo build"]
+
+[tasks.server-start]
+script = ["\"./target/debug/game-server\""]
+
+[tasks.start]
+dependencies = [
+	"cargo-start",
+	"server-start",
+]
+
+
+[tasks.cargo-build]
+script = ["cargo build --release"]
+
+[tasks.build]
+dependencies = [
+	"cargo-build",
+]
+
+
+[tasks.cargo-test]
+script = ["cargo test"]
+
+[tasks.test]
+dependencies = [
+	"cargo-test",
+]
+
+
+[tasks.cargo-update]
+script = ["cargo update"]
+
+[tasks.update]
+dependencies = [
+	"cargo-update",
+]
+
+
+[tasks.cargo-delete-locks]
+script = ["rm ./Cargo.lock"]
+
+[tasks.delete-locks]
+dependencies = [
+	"cargo-delete-locks",
+]
+
+
+[tasks.cargo-clean]
+script = ["cargo clean"]
+
+[tasks.clean]
+dependencies = [
+	"cargo-clean",
+]

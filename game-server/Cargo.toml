@@ -1,0 +1,9 @@
+[package]
+name = "game-server"
+version = "0.1.0"
+authors = ["Luke Miles <luke.49@live.co.uk>"]
+edition = "2018"
+
+[dependencies]
+game-state = { path = "../game-state" }
+peer-server = { path = "../peer-server" }

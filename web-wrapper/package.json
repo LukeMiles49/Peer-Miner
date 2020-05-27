@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "snowpack": "^2.0.0-rc.12"
+  },
+  "webDependencies": {},
+  "snowpack": {
+    "devOptions": {
+      "out": "dist",
+      "bundle": false
+    },
+    "scripts": {
+      "mount:page": "mount page --to /",
+      "mount:pkg": "mount pkg --to /",
+      "mount:web_modules": "mount $WEB_MODULES --to /module/"
+    }
+  }
+}

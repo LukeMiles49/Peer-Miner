@@ -1,0 +1,126 @@
+[config]
+skip_core_tasks = true
+
+
+[tasks.npm-install]
+script = ["npm install"]
+
+[tasks.install]
+dependencies = [
+	"npm-install",
+]
+
+
+[tasks.wasm-pack-start]
+script = ["wasm-pack build --dev --target web -- --features wee_alloc"]
+
+[tasks.wasm-pack-watch-start]
+script = ["wasm-pack build --dev --target web -- --features wee_alloc"]
+watch = { postpone = true, watch = ["./src/"] }
+
+[tasks.snowpack-watch-start]
+script = ["snowpack dev"]
+
+[tasks.watch-start]
+run_task = { name = ["wasm-pack-watch-start", "snowpack-watch-start"], parallel = true }
+
+[tasks.start]
+dependencies = [
+	"wasm-pack-start",
+	"watch-start",
+]
+
+
+[tasks.wasm-pack-build]
+script = ["wasm-pack build --release --target web -- --features wee_alloc"]
+
+[tasks.snowpack-build]
+script = ["snowpack build"]
+
+[tasks.build]
+dependencies = [
+	"wasm-pack-build",
+	"snowpack-build",
+]
+
+
+[tasks.wasm-pack-all-test]
+script = ["wasm-pack test --firefox --chrome"]
+
+[tasks.wasm-pack-mac-test]
+script = ["wasm-pack test --firefox --chrome --safari"]
+
+[tasks.wasm-pack-test]
+run_task = [
+	{ name = "wasm-pack-mac-test", condition = { platforms = ["mac"] } },
+	{ name = "wasm-pack-all-test" },
+]
+
+[tasks.test]
+dependencies = [
+	"wasm-pack-test",
+]
+
+
+[tasks.cargo-update]
+script = ["cargo update"]
+
+[tasks.npm-update]
+script = ["npm update"]
+
+[tasks.update]
+dependencies = [
+	"cargo-update",
+	"npm-update",
+]
+
+
+[tasks.cargo-delete-locks]
+script = ["rm ./Cargo.lock"]
+
+[tasks.npm-delete-locks]
+script = ["rm ./package-lock.json"]
+
+[tasks.delete-locks]
+dependencies = [
+	"cargo-delete-locks",
+]
+
+
+[tasks.cargo-clean]
+script = ["cargo clean"]
+
+[tasks.wasm-pack-clean]
+script_runner = "@duckscript"
+script = ["rm -rf ./pkg/"]
+
+[tasks.snowpack-clean]
+script_runner = "@duckscript"
+script = ["rm -rf ./build/"]
+
+[tasks.clean]
+dependencies = [
+	"cargo-clean",
+	"wasm-pack-clean",
+	"snowpack-clean",
+]
+
+
+[tasks.npm-uninstall]
+script_runner = "@duckscript"
+script = ["rm -rf ./node_modules/"]
+
+[tasks.snowpack-uninstall]
+script_runner = "@duckscript"
+script = ["rm -rf ./web_modules/"]
+dependencies = [
+	"snowpack-clean",
+]
+
+[tasks.uninstall]
+dependencies = [
+	"cargo-clean",
+	"wasm-pack-clean",
+	"npm-uninstall",
+	"snowpack-uninstall",
+]
