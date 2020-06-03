@@ -8,7 +8,7 @@ edition = "2018"
 crate-type = ["cdylib"]
 
 [dependencies]
-wasm-bindgen = "0.2"
+wasm-bindgen = { version = "0.2", features = ["nightly"] }
 js-sys = "0.3"
 wee_alloc = { version = "0.4", optional = true }
 game-client = { path = "../game-client" }
@@ -17,6 +17,13 @@ game-client = { path = "../game-client" }
 version = "0.3"
 features = [
 	"console",
+	"CanvasRenderingContext2d",
+	"Document",
+	"Element",
+	"HtmlCanvasElement",
+	"HtmlImageElement",
+	"OffscreenCanvas",
+	"Window",
 ]
 
 [target.'cfg(debug_assertions)'.dependencies]
