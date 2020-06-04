@@ -4,7 +4,7 @@ use web_sys::{
 	HtmlImageElement,
 };
 
-use game_client::{
+use game_interface::{
 	Canvas,
 	Colour,
 	Image,

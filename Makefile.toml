@@ -28,10 +28,12 @@ script = [
 [tasks.test]
 script = [
 	"cargo make test --cwd game-client",
+	"cargo make test --cwd game-interface",
 	"cargo make test --cwd game-server",
 	"cargo make test --cwd game-state",
 	"cargo make test --cwd peer-client",
 	"cargo make test --cwd peer-server",
+	"cargo make test --cwd web-interface",
 	"cargo make test --cwd web-wrapper",
 ]
 
@@ -46,10 +48,12 @@ script = [
 [tasks.delete-locks]
 script = [
 	"cargo make delete-lock --cwd game-client",
+	"cargo make delete-lock --cwd game-interface",
 	"cargo make delete-lock --cwd game-server",
 	"cargo make delete-lock --cwd game-state",
 	"cargo make delete-lock --cwd peer-client",
 	"cargo make delete-lock --cwd peer-server",
+	"cargo make delete-lock --cwd web-interface",
 	"cargo make delete-lock --cwd web-wrapper",
 ]
 
@@ -57,10 +61,12 @@ script = [
 [tasks.clean]
 script = [
 	"cargo make clean --cwd game-client",
+	"cargo make clean --cwd game-interface",
 	"cargo make clean --cwd game-server",
 	"cargo make clean --cwd game-state",
 	"cargo make clean --cwd peer-client",
 	"cargo make clean --cwd peer-server",
+	"cargo make clean --cwd web-interface",
 	"cargo make clean --cwd web-wrapper",
 ]
 
@@ -68,10 +74,12 @@ script = [
 [tasks.uninstall]
 script = [
 	"cargo make clean --cwd game-client",
+	"cargo make clean --cwd game-interface",
 	"cargo make clean --cwd game-server",
 	"cargo make clean --cwd game-state",
 	"cargo make clean --cwd peer-client",
 	"cargo make clean --cwd peer-server",
+	"cargo make uninstall --cwd web-interface",
 	"cargo make uninstall --cwd web-wrapper",
 ]
 

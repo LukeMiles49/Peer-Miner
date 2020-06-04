@@ -1,0 +1,38 @@
+[config]
+skip_core_tasks = true
+
+
+[tasks.wasm-pack-all-test]
+script = ["wasm-pack test --firefox --chrome"]
+
+[tasks.wasm-pack-mac-test]
+script = ["wasm-pack test --firefox --chrome --safari"]
+
+[tasks.wasm-pack-test]
+run_task = [
+	{ name = "wasm-pack-mac-test", condition = { platforms = ["mac"] } },
+	{ name = "wasm-pack-all-test" },
+]
+
+[tasks.test]
+dependencies = [
+	"wasm-pack-test",
+]
+
+
+[tasks.cargo-delete-locks]
+script = ["rm ./Cargo.lock"]
+
+[tasks.delete-locks]
+dependencies = [
+	"cargo-delete-locks",
+]
+
+
+[tasks.cargo-clean]
+script = ["cargo clean"]
+
+[tasks.clean]
+dependencies = [
+	"cargo-clean",
+]

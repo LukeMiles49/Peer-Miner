@@ -6,4 +6,5 @@ edition = "2018"
 
 [dependencies]
 game-state = { path = "../game-state" }
+game-interface = { path = "../game-interface" }
 peer-client = { path = "../peer-client" }

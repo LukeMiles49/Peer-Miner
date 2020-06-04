@@ -1,7 +1,6 @@
 use std::{
-	cell::{
-		RefCell,
-	},
+	cell::RefCell,
+	marker::PhantomData,
 	mem,
 	rc::{
 		Rc,
@@ -10,11 +9,9 @@ use std::{
 };
 use wasm_bindgen::prelude::*;
 
-use game_client::Timer;
+use game_interface::Timer;
 
-use crate::Environment;
-
-use super::Game;
+use super::Environment;
 
 #[wasm_bindgen]
 extern "C" {
@@ -27,34 +24,38 @@ extern "C" {
 	fn clearAnimationFrame(id: f64);
 }
 
-pub struct WebTimer { }
+pub struct WebTimer<Env: 'static + Environment> {
+	__phantom: PhantomData<&'static mut Env>,
+}
 
-impl WebTimer {
+impl<Env: Environment> WebTimer<Env> {
 	pub fn new() -> Self {
-		WebTimer { }
+		WebTimer {
+			__phantom: PhantomData,
+		}
 	}
 }
 
-impl Timer<Game> for WebTimer {
+impl<Env: Environment> Timer<Env::TState> for WebTimer<Env> {
 	type TTimeout = Handle<dyn FnMut()>;
 	type TInterval = Handle<dyn FnMut()>;
 	type TFrame = Handle<dyn FnMut(f64)>;
 	type TAnimation = Handle<dyn FnMut(f64)>;
 	
-	fn set_timeout<F: 'static + FnOnce(&mut Game)>(&mut self, ms: u32, callback: F) -> Handle<dyn FnMut()> {
-		Timeout::register(ms, callback)
+	fn set_timeout<F: 'static + FnOnce(&mut Env::TState)>(&mut self, ms: u32, callback: F) -> Handle<dyn FnMut()> {
+		Timeout::<Env, F>::register(ms, callback)
 	}
 	
-	fn set_interval<F: 'static + FnMut(&mut Game)>(&mut self, ms: u32, callback: F) -> Handle<dyn FnMut()> {
-		Interval::register(ms, callback)
+	fn set_interval<F: 'static + FnMut(&mut Env::TState)>(&mut self, ms: u32, callback: F) -> Handle<dyn FnMut()> {
+		Interval::<Env, F>::register(ms, callback)
 	}
 	
-	fn set_frame<F: 'static + FnOnce(&mut Game, f64)>(&mut self, callback: F) -> Handle<dyn FnMut(f64)> {
-		Frame::register(callback)
+	fn set_frame<F: 'static + FnOnce(&mut Env::TState, f64)>(&mut self, callback: F) -> Handle<dyn FnMut(f64)> {
+		Frame::<Env, F>::register(callback)
 	}
 	
-	fn set_animation<F: 'static + FnMut(&mut Game, f64)>(&mut self, callback: F) -> Handle<dyn FnMut(f64)> {
-		Animation::register(callback)
+	fn set_animation<F: 'static + FnMut(&mut Env::TState, f64)>(&mut self, callback: F) -> Handle<dyn FnMut(f64)> {
+		Animation::<Env, F>::register(callback)
 	}
 }
 
@@ -71,8 +72,11 @@ impl<T: ?Sized> Handle<T> {
 }
 
 
-pub struct Timeout<F: 'static + FnOnce(&mut Game)> {
+pub struct Timeout<Env: 'static + Environment, F: 'static + FnOnce(&mut Env::TState)> {
 	data: Option<TimeoutData<F>>,
+	
+	// TODO: Not really sure why I need this?
+	__phantom: PhantomData<&'static mut Env>,
 }
 
 pub struct TimeoutData<F: 'static> {
@@ -81,10 +85,11 @@ pub struct TimeoutData<F: 'static> {
 	closure: Weak<Closure<dyn FnMut()>>,
 }
 
-impl<F: 'static + FnOnce(&mut Game)> Timeout<F> {
+impl<Env: 'static + Environment, F: 'static + FnOnce(&mut Env::TState)> Timeout<Env, F> {
 	pub fn register(ms: u32, callback: F) -> Handle<dyn FnMut()> {
 		let timeout = Rc::new(RefCell::new(Self {
 			data: None,
+			__phantom: PhantomData,
 		}));
 		
 		let closure = {
@@ -100,9 +105,16 @@ impl<F: 'static + FnOnce(&mut Game)> Timeout<F> {
 		
 		Handle::new(closure)
 	}
+	
+	pub fn run(&mut self) {
+		// JS implicitly passes ownership of the environment
+		let env = Env::take_ownership();
+		let data = mem::replace(&mut self.data, None);
+		(data.unwrap().callback)(env.get_state())
+	}
 }
 
-impl<F: 'static + FnOnce(&mut Game)> Drop for Timeout<F> {
+impl<Env: Environment, F: 'static + FnOnce(&mut Env::TState)> Drop for Timeout<Env, F> {
 	fn drop(&mut self) {
 		match self.data {
 			Some(TimeoutData { id, .. }) => clearTimeout(id),
@@ -111,18 +123,12 @@ impl<F: 'static + FnOnce(&mut Game)> Drop for Timeout<F> {
 	}
 }
 
-impl<F: 'static + FnOnce(&mut Game)> Timeout<F> {
-	pub fn run(&mut self) {
-		// JS implicitly passes ownership of the environment
-		let env = Environment::take_ownership();
-		let data = mem::replace(&mut self.data, None);
-		(data.unwrap().callback)(&mut env.game)
-	}
-}
 
-
-pub struct Interval<F: 'static + FnMut(&mut Game)> {
+pub struct Interval<Env: 'static + Environment, F: 'static + FnMut(&mut Env::TState)> {
 	data: Option<IntervalData<F>>,
+	
+	// TODO: Not really sure why I need this?
+	__phantom: PhantomData<&'static mut Env>,
 }
 
 pub struct IntervalData<F: 'static> {
@@ -131,10 +137,11 @@ pub struct IntervalData<F: 'static> {
 	closure: Weak<Closure<dyn FnMut()>>,
 }
 
-impl<F: 'static + FnMut(&mut Game)> Interval<F> {
+impl<Env: 'static + Environment, F: 'static + FnMut(&mut Env::TState)> Interval<Env, F> {
 	pub fn register(ms: u32, callback: F) -> Handle<dyn FnMut()> {
 		let interval = Rc::new(RefCell::new(Self {
 			data: None,
+			__phantom: PhantomData,
 		}));
 		
 		let closure = {
@@ -150,9 +157,15 @@ impl<F: 'static + FnMut(&mut Game)> Interval<F> {
 		
 		Handle::new(closure)
 	}
+	
+	pub fn run(&mut self) {
+		// JS implicitly passes ownership of the environment
+		let env = Env::take_ownership();
+		(self.data.as_mut().unwrap().callback)(env.get_state())
+	}
 }
 
-impl<F: 'static + FnMut(&mut Game)> Drop for Interval<F> {
+impl<Env: 'static + Environment, F: 'static + FnMut(&mut Env::TState)> Drop for Interval<Env, F> {
 	fn drop(&mut self) {
 		match self.data {
 			Some(IntervalData { id, .. }) => clearInterval(id),
@@ -161,17 +174,12 @@ impl<F: 'static + FnMut(&mut Game)> Drop for Interval<F> {
 	}
 }
 
-impl<F: 'static + FnMut(&mut Game)> Interval<F> {
-	pub fn run(&mut self) {
-		// JS implicitly passes ownership of the environment
-		let env = Environment::take_ownership();
-		(self.data.as_mut().unwrap().callback)(&mut env.game)
-	}
-}
 
-
-pub struct Frame<F: 'static + FnOnce(&mut Game, f64)> {
+pub struct Frame<Env: 'static + Environment, F: 'static + FnOnce(&mut Env::TState, f64)> {
 	data: Option<FrameData<F>>,
+	
+	// TODO: Not really sure why I need this?
+	__phantom: PhantomData<&'static mut Env>,
 }
 
 pub struct FrameData<F: 'static> {
@@ -180,10 +188,11 @@ pub struct FrameData<F: 'static> {
 	closure: Weak<Closure<dyn FnMut(f64)>>,
 }
 
-impl<F: 'static + FnOnce(&mut Game, f64)> Frame<F> {
+impl<Env: 'static + Environment, F: 'static + FnOnce(&mut Env::TState, f64)> Frame<Env, F> {
 	pub fn register(callback: F) -> Handle<dyn FnMut(f64)> {
 		let frame = Rc::new(RefCell::new(Self {
 			data: None,
+			__phantom: PhantomData,
 		}));
 		
 		let closure = {
@@ -199,9 +208,16 @@ impl<F: 'static + FnOnce(&mut Game, f64)> Frame<F> {
 		
 		Handle::new(closure)
 	}
+	
+	pub fn run(&mut self, time: f64) {
+		// JS implicitly passes ownership of the environment
+		let env = Env::take_ownership();
+		let data = mem::replace(&mut self.data, None);
+		(data.unwrap().callback)(env.get_state(), time)
+	}
 }
 
-impl<F: 'static + FnOnce(&mut Game, f64)> Drop for Frame<F> {
+impl<Env: 'static + Environment, F: 'static + FnOnce(&mut Env::TState, f64)> Drop for Frame<Env, F> {
 	fn drop(&mut self) {
 		match self.data {
 			Some(FrameData { id, .. }) => clearAnimationFrame(id),
@@ -210,18 +226,12 @@ impl<F: 'static + FnOnce(&mut Game, f64)> Drop for Frame<F> {
 	}
 }
 
-impl<F: 'static + FnOnce(&mut Game, f64)> Frame<F> {
-	pub fn run(&mut self, time: f64) {
-		// JS implicitly passes ownership of the environment
-		let env = Environment::take_ownership();
-		let data = mem::replace(&mut self.data, None);
-		(data.unwrap().callback)(&mut env.game, time)
-	}
-}
 
-
-pub struct Animation<F: 'static + FnMut(&mut Game, f64)> {
+pub struct Animation<Env: 'static + Environment, F: 'static + FnMut(&mut Env::TState, f64)> {
 	data: Option<AnimationData<F>>,
+	
+	// TODO: Not really sure why I need this?
+	__phantom: PhantomData<&'static mut Env>,
 }
 
 pub struct AnimationData<F: 'static> {
@@ -230,10 +240,11 @@ pub struct AnimationData<F: 'static> {
 	closure: Weak<Closure<dyn FnMut(f64)>>,
 }
 
-impl<F: 'static + FnMut(&mut Game, f64)> Animation<F> {
+impl<Env: 'static + Environment, F: 'static + FnMut(&mut Env::TState, f64)> Animation<Env, F> {
 	pub fn register(callback: F) -> Handle<dyn FnMut(f64)> {
 		let animation = Rc::new(RefCell::new(Self {
 			data: None,
+			__phantom: PhantomData,
 		}));
 		
 		let closure = {
@@ -249,23 +260,21 @@ impl<F: 'static + FnMut(&mut Game, f64)> Animation<F> {
 		
 		Handle::new(closure)
 	}
+	
+	pub fn run(&mut self, time: f64) {
+		// JS implicitly passes ownership of the environment
+		let env = Env::take_ownership();
+		let data = self.data.as_mut().unwrap();
+		(data.callback)(env.get_state(), time);
+		data.id = requestAnimationFrame(&Weak::upgrade(&data.closure).unwrap());
+	}
 }
 
-impl<F: 'static + FnMut(&mut Game, f64)> Drop for Animation<F> {
+impl<Env: 'static + Environment, F: 'static + FnMut(&mut Env::TState, f64)> Drop for Animation<Env, F> {
 	fn drop(&mut self) {
 		match self.data {
 			Some(AnimationData { id, .. }) => clearAnimationFrame(id),
 			_ => (),
 		}
-	}
-}
-
-impl<F: 'static + FnMut(&mut Game, f64)> Animation<F> {
-	pub fn run(&mut self, time: f64) {
-		// JS implicitly passes ownership of the environment
-		let env = Environment::take_ownership();
-		let data = self.data.as_mut().unwrap();
-		(data.callback)(&mut env.game, time);
-		data.id = requestAnimationFrame(&Weak::upgrade(&data.closure).unwrap());
 	}
 }
