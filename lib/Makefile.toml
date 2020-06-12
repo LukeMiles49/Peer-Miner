@@ -1,0 +1,29 @@
+[config]
+skip_core_tasks = true
+
+
+[tasks.cargo-test]
+script = ["cargo test"]
+
+[tasks.test]
+dependencies = [
+	"cargo-test",
+]
+
+
+[tasks.cargo-delete-locks]
+script = ["rm ./Cargo.lock"]
+
+[tasks.delete-locks]
+dependencies = [
+	"cargo-delete-locks",
+]
+
+
+[tasks.cargo-clean]
+script = ["cargo clean"]
+
+[tasks.clean]
+dependencies = [
+	"cargo-clean",
+]

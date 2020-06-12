@@ -1,4 +1,4 @@
-use super::Colour;
+use lib::Colour;
 
 pub trait Canvas {
 	type TImage: Image;

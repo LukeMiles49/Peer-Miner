@@ -6,9 +6,10 @@ use web_sys::{
 
 use game_interface::{
 	Canvas,
-	Colour,
 	Image,
 };
+
+use lib::Colour;
 
 pub struct WebCanvas {
 	canvas: CanvasRenderingContext2d,

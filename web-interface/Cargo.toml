@@ -8,6 +8,7 @@ edition = "2018"
 wasm-bindgen = { version = "0.2", features = ["nightly"] }
 js-sys = "0.3"
 game-interface = { path = "../game-interface" }
+lib = { path = "../lib" }
 
 [dependencies.web-sys]
 version = "0.3"

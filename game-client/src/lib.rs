@@ -2,9 +2,10 @@ use std::convert::TryFrom;
 
 use game_interface::{
 	Canvas,
-	Colour,
 	Timer,
 };
+
+use lib::Colour;
 
 pub struct Game<TTimer: 'static + Timer<Self>, TCanvas: 'static + Canvas> {
 	timer: TTimer,
