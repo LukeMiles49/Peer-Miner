@@ -4,6 +4,7 @@ use wasm_bindgen::JsCast;
 use web_interface::{
 	Environment,
 	WebCanvas,
+	WebKeys,
 	WebTimer,
 };
 
@@ -37,6 +38,7 @@ impl Environment for Env {
 	type TState = game_client::Game<
 		WebTimer<Self>,
 		WebCanvas,
+		WebKeys<Self>,
 	>;
 	
 	// TODO: Run-time checks?
@@ -48,6 +50,10 @@ impl Environment for Env {
 	
 	fn get_state(&mut self) -> &mut Game {
 		&mut self.game
+	}
+	
+	fn get_keys(&mut self) -> &mut WebKeys<Self> {
+		self.game.keys()
 	}
 }
 
@@ -77,6 +83,7 @@ pub fn start() {
 		game: Game::new(
 			WebTimer::new(),
 			WebCanvas::new(context),
+			WebKeys::new(),
 		),
 	}));
 	

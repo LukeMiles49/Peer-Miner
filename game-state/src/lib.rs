@@ -1,7 +1,8 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+mod block;
+pub use block::*;
+
+mod player;
+pub use player::*;
+
+mod world;
+pub use world::*;
