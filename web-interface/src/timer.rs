@@ -106,7 +106,7 @@ impl<Env: 'static + Environment, F: 'static + FnOnce(&mut Env::TState)> Timeout<
 		Handle::new(closure)
 	}
 	
-	pub fn run(&mut self) {
+	fn run(&mut self) {
 		// JS implicitly passes ownership of the environment
 		let env = Env::take_ownership();
 		let data = mem::replace(&mut self.data, None);
@@ -158,7 +158,7 @@ impl<Env: 'static + Environment, F: 'static + FnMut(&mut Env::TState)> Interval<
 		Handle::new(closure)
 	}
 	
-	pub fn run(&mut self) {
+	fn run(&mut self) {
 		// JS implicitly passes ownership of the environment
 		let env = Env::take_ownership();
 		(self.data.as_mut().unwrap().callback)(env.get_state())
@@ -209,7 +209,7 @@ impl<Env: 'static + Environment, F: 'static + FnOnce(&mut Env::TState, f64)> Fra
 		Handle::new(closure)
 	}
 	
-	pub fn run(&mut self, time: f64) {
+	fn run(&mut self, time: f64) {
 		// JS implicitly passes ownership of the environment
 		let env = Env::take_ownership();
 		let data = mem::replace(&mut self.data, None);
@@ -261,7 +261,7 @@ impl<Env: 'static + Environment, F: 'static + FnMut(&mut Env::TState, f64)> Anim
 		Handle::new(closure)
 	}
 	
-	pub fn run(&mut self, time: f64) {
+	fn run(&mut self, time: f64) {
 		// JS implicitly passes ownership of the environment
 		let env = Env::take_ownership();
 		let data = self.data.as_mut().unwrap();

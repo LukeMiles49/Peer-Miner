@@ -2,8 +2,8 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 
 use web_interface::{
-	WebCanvas,
 	Environment,
+	WebCanvas,
 	WebTimer,
 };
 

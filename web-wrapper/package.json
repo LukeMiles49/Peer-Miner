@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "snowpack": "^2.0.0-rc.12"
+    "snowpack": "^2.4.0"
   },
   "webDependencies": {},
   "snowpack": {
