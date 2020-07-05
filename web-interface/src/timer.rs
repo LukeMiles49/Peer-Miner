@@ -11,7 +11,10 @@ use wasm_bindgen::prelude::*;
 
 use game_interface::Timer;
 
-use super::Environment;
+use super::{
+	Environment,
+	WebLogger,
+};
 
 #[wasm_bindgen]
 extern "C" {
@@ -36,7 +39,7 @@ impl<Env: Environment> WebTimer<Env> {
 	}
 }
 
-impl<Env: Environment> Timer<Env::TState> for WebTimer<Env> {
+impl<Env: Environment> Timer<Env::TState, WebLogger> for WebTimer<Env> {
 	type TTimeout = Handle<dyn FnMut()>;
 	type TInterval = Handle<dyn FnMut()>;
 	type TFrame = Handle<dyn FnMut(f64)>;
@@ -60,6 +63,7 @@ impl<Env: Environment> Timer<Env::TState> for WebTimer<Env> {
 }
 
 pub struct Handle<T: ?Sized> {
+	#[allow(dead_code)]
 	closure: Rc<Closure<T>>,
 }
 
@@ -82,6 +86,7 @@ pub struct Timeout<Env: 'static + Environment, F: 'static + FnOnce(&mut Env::TSt
 pub struct TimeoutData<F: 'static> {
 	id: f64,
 	callback: F,
+	#[allow(dead_code)]
 	closure: Weak<Closure<dyn FnMut()>>,
 }
 
@@ -134,6 +139,7 @@ pub struct Interval<Env: 'static + Environment, F: 'static + FnMut(&mut Env::TSt
 pub struct IntervalData<F: 'static> {
 	id: f64,
 	callback: F,
+	#[allow(dead_code)]
 	closure: Weak<Closure<dyn FnMut()>>,
 }
 
@@ -185,6 +191,7 @@ pub struct Frame<Env: 'static + Environment, F: 'static + FnOnce(&mut Env::TStat
 pub struct FrameData<F: 'static> {
 	id: f64,
 	callback: F,
+	#[allow(dead_code)]
 	closure: Weak<Closure<dyn FnMut(f64)>>,
 }
 

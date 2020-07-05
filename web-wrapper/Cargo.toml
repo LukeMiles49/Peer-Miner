@@ -25,7 +25,10 @@ features = [
 ]
 
 [features]
-debug = ["console_error_panic_hook"]
+debug = [
+	"console_error_panic_hook",
+	"web-interface/debug",
+]
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"

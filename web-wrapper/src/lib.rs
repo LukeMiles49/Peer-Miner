@@ -1,18 +1,30 @@
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 
+use web_sys::{
+	Element,
+	HtmlCanvasElement,
+};
+
 use web_interface::{
 	Environment,
 	WebCanvas,
 	WebKeys,
 	WebTimer,
+	WebLogger,
 };
 
-#[cfg(debug_assertions)]
+#[cfg(feature = "debug")]
 use {
 	console_error_panic_hook,
 	std::panic,
 };
+
+#[wasm_bindgen]
+extern "C" {
+	#[wasm_bindgen(js_namespace = document, js_name = "getElementById")]
+	fn getElementById(id: &str) -> Option<Element>;
+}
 
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
@@ -39,6 +51,7 @@ impl Environment for Env {
 		WebTimer<Self>,
 		WebCanvas,
 		WebKeys<Self>,
+		WebLogger,
 	>;
 	
 	// TODO: Run-time checks?
@@ -62,27 +75,15 @@ pub fn start() {
 	#[cfg(debug_assertions)]
 	panic::set_hook(Box::new(console_error_panic_hook::hook));
 	
-	let window = web_sys::window()
-		.unwrap();
-	let document = window
-		.document()
-		.unwrap();
-	let canvas = document
-		.get_element_by_id("game-canvas")
+	let canvas = getElementById("game-canvas")
 		.unwrap()
-		.dyn_into::<web_sys::HtmlCanvasElement>()
-		.unwrap();
-	let context = canvas
-		.get_context("2d")
-		.unwrap()
-		.unwrap()
-		.dyn_into::<web_sys::CanvasRenderingContext2d>()
+		.dyn_into::<HtmlCanvasElement>()
 		.unwrap();
 	
 	Env::init(Some(Env {
 		game: Game::new(
 			WebTimer::new(),
-			WebCanvas::new(context),
+			WebCanvas::new(canvas),
 			WebKeys::new(),
 		),
 	}));

@@ -1,5 +1,6 @@
 use std::convert::TryFrom;
 
+#[derive(Clone, Copy)]
 pub struct Colour {
 	r: u8,
 	g: u8,
@@ -74,6 +75,6 @@ impl From<Colour> for u32 {
 
 impl From<Colour> for String {
 	fn from(value: Colour) -> String {
-		format!("#{:X}", u32::from(value))
+		format!("#{:08X}", u32::from(value))
 	}
 }

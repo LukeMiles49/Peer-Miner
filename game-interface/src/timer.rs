@@ -1,4 +1,6 @@
-pub trait Timer<TState> {
+use super::Logger;
+
+pub trait Timer<TState, TLogger: Logger> {
 	// TODO: Make generic to avoid box when generic associated types are stable
 	
 	type TTimeout;

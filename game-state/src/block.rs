@@ -1,14 +1,13 @@
-#[derive(Copy, Clone)]
+use lib::Colour;
+
 pub struct Block {
-	id: u16,
+	pub colour: Colour,
 }
 
 impl Block {
-	pub const fn new(id: u16) -> Self {
+	pub const fn new(colour: Colour) -> Self {
 		Self {
-			id,
+			colour,
 		}
 	}
-	
-	pub const EMPTY: Self = Block::new(0);
 }
