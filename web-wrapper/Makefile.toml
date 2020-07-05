@@ -12,10 +12,10 @@ dependencies = [
 
 
 [tasks.wasm-pack-start]
-script = ["wasm-pack build --dev --target web -- --features wee_alloc debug"]
+script = ["wasm-pack build --dev --target web -- --features \"wee_alloc debug\""]
 
 [tasks.wasm-pack-watch-start]
-script = ["wasm-pack build --dev --target web -- --features wee_alloc debug"]
+script = ["wasm-pack build --dev --target web -- --features \"wee_alloc debug\""]
 watch = { postpone = true, watch = [".."] }
 
 [tasks.snowpack-watch-start]
