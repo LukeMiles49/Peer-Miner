@@ -10,6 +10,7 @@ crate-type = ["cdylib"]
 [dependencies]
 wasm-bindgen = { version = "0.2" }
 wee_alloc = { version = "0.4", optional = true }
+console_error_panic_hook = { version = "0.1", optional = true }
 game-client = { path = "../game-client" }
 lib = { path = "../lib" }
 web-interface = { path = "../web-interface" }
@@ -23,8 +24,8 @@ features = [
 	"Window",
 ]
 
-[target.'cfg(debug_assertions)'.dependencies]
-console_error_panic_hook = "0.1"
+[features]
+debug = ["console_error_panic_hook"]
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"

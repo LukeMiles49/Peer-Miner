@@ -4,6 +4,8 @@ A peer to peer test for my Mars Miner game
 ## Setup:
 - Install [rust and cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html)
 - Install [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
+- Install [node and npm](https://nodejs.org/en/download/)
+- `rustup default nightly`
 - `cargo install cargo-make`
 - `cargo make install`
 

@@ -12,14 +12,14 @@ dependencies = [
 
 
 [tasks.wasm-pack-start]
-script = ["wasm-pack build --dev --target web -- --features wee_alloc"]
+script = ["wasm-pack build --dev --target web -- --features wee_alloc debug"]
 
 [tasks.wasm-pack-watch-start]
-script = ["wasm-pack build --dev --target web -- --features wee_alloc"]
-watch = { postpone = true, watch = ["./src/"] }
+script = ["wasm-pack build --dev --target web -- --features wee_alloc debug"]
+watch = { postpone = true, watch = [".."] }
 
 [tasks.snowpack-watch-start]
-script = ["snowpack dev"]
+script = ["npm run-script snowpack-dev"]
 
 [tasks.watch-start]
 run_task = { name = ["wasm-pack-watch-start", "snowpack-watch-start"], parallel = true }
@@ -35,7 +35,7 @@ dependencies = [
 script = ["wasm-pack build --release --target web -- --features wee_alloc"]
 
 [tasks.snowpack-build]
-script = ["snowpack build"]
+script = ["npm run-script snowpack-build"]
 
 [tasks.build]
 dependencies = [

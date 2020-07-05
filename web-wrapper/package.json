@@ -1,6 +1,10 @@
 {
+  "scripts": {
+    "snowpack-dev": "snowpack dev",
+    "snowpack-build": "snowpack build"
+  },
   "dependencies": {
-    "snowpack": "^2.4.0"
+    "snowpack": "^2.6.3"
   },
   "webDependencies": {},
   "snowpack": {
