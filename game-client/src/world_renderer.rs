@@ -40,56 +40,70 @@ impl<TCanvas: Canvas<TLogger>, TLogger: Logger> WorldRenderer<TCanvas, TLogger> 
 		}
 	}
 	
-	pub fn draw_to(&mut self, dest: &mut TCanvas, world: &World, x: f64, y: f64) {
-		let iw = self.width as i32;
-		let ih = self.height as i32;
+	pub fn draw_to(&mut self, dest: &mut TCanvas, world: &World, player_x: f64, player_y: f64) {
+		let i_width = self.width as i32;
+		let i_height = self.height as i32;
 		
-		let fw = self.width as f64;
-		let fh = self.height as f64;
+		let f_width = self.width as f64;
+		let f_height = self.height as f64;
 		
-		let sx = x - fw / 2.;
-		let sy = y - fh / 2.;
+		let f_dest_x = player_x - f_width / 2.;
+		let f_dest_y = player_y - f_height / 2.;
 		
-		let fx = sx.floor();
-		let fy = sy.floor();
+		let f_canvas_x = f_dest_x.floor();
+		let f_canvas_y = f_dest_y.floor();
 		
-		let ix = fx as i32;
-		let iy = fy as i32;
+		let i_canvas_x = f_canvas_x as i32;
+		let i_canvas_y = f_canvas_y as i32;
 		
-		let dx = ix - self.x;
-		let dy = iy - self.y;
+		let f_draw_x = ((f_dest_x - f_canvas_x) * Self::F_SCALE).round() / Self::F_SCALE;
+		let f_draw_y = ((f_dest_y - f_canvas_y) * Self::F_SCALE).round() / Self::F_SCALE;
 		
-		self.x = ix;
-		self.y = iy;
+		let f_delta_x = i_canvas_x - self.x;
+		let f_delta_y = i_canvas_y - self.y;
 		
-		if dx != 0 || dy != 0 {
-			self.canvas.draw_self(-dx as f64, -dy as f64);
+		if f_delta_x != 0 || f_delta_y != 0 {
+			self.canvas.draw_self(-f_delta_x as f64, -f_delta_y as f64);
+			self.x = i_canvas_x;
+			self.y = i_canvas_y;
 			
 			let (new_x_min, new_x_max) =
-				if dx >= 0 { (max(ix + iw + 1 - dx, ix), ix + iw + 1) }
-				else { (ix, min(ix - dx, ix + iw + 1)) };
-			let (new_y_min, new_y_max) =
-				if dy >= 0 { (max(iy + ih + 1 - dy, iy), iy + ih + 1) }
-				else { (iy, min(iy - dy, iy + ih + 1)) };
+				if f_delta_x >= 0 { (
+					max(i_canvas_x + i_width + 1 - f_delta_x, i_canvas_x),
+					i_canvas_x + i_width + 1,
+				) } else { (
+					i_canvas_x,
+					min(i_canvas_x - f_delta_x, i_canvas_x + i_width + 1),
+				) };
 			
-			if dy >= 0 {
-				for y in iy..new_y_min {
+			let (new_y_min, new_y_max) =
+				if f_delta_y >= 0 { (
+					max(i_canvas_y + i_height + 1 - f_delta_y, i_canvas_y),
+					i_canvas_y + i_height + 1,
+				) } else { (
+					i_canvas_y,
+					min(i_canvas_y - f_delta_y, i_canvas_y + i_height + 1),
+				) };
+			
+			// Top
+			if f_delta_y >= 0 {
+				for y in i_canvas_y..new_y_min {
 					for x in new_x_min..new_x_max {
 						self.redraw(world, x, y);
 					}
 				}
-				for y in new_y_min..new_y_max {
-					for x in ix..(ix + iw + 1) {
-						self.redraw(world, x, y);
-					}
+			}
+			
+			// Side
+			for y in new_y_min..new_y_max {
+				for x in i_canvas_x..(i_canvas_x + i_width + 1) {
+					self.redraw(world, x, y);
 				}
-			} else {
-				for y in new_y_min..new_y_max {
-					for x in ix..(ix + iw + 1) {
-						self.redraw(world, x, y);
-					}
-				}
-				for y in new_y_max..(iy + ih + 1) {
+			}
+			
+			// Bottom
+			if f_delta_y < 0 {
+				for y in new_y_max..(i_canvas_y + i_height + 1) {
 					for x in new_x_min..new_x_max {
 						self.redraw(world, x, y);
 					}
@@ -97,7 +111,11 @@ impl<TCanvas: Canvas<TLogger>, TLogger: Logger> WorldRenderer<TCanvas, TLogger> 
 			}
 		}
 		
-		dest.draw_image_segment_scaled(self.canvas.as_image(), sx - fx, sy - fy, fw, fh, 0., 0., fw * (Self::SCALE as f64), fh * (Self::SCALE as f64));
+		dest.draw_image_segment_scaled(
+			self.canvas.as_image(),
+			f_draw_x, f_draw_y, f_width, f_height,
+			0., 0., f_width * Self::F_SCALE, f_height * Self::F_SCALE,
+		);
 	}
 	
 	pub fn redraw(&mut self, world: &World, x: i32, y: i32) {
@@ -112,4 +130,5 @@ impl<TCanvas: Canvas<TLogger>, TLogger: Logger> WorldRenderer<TCanvas, TLogger> 
 	}
 	
 	const SCALE: u32 = 4;
+	const F_SCALE: f64 = Self::SCALE as f64;
 }

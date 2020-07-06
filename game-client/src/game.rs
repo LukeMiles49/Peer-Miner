@@ -66,8 +66,8 @@ impl<
 		let player = self.player.as_mut().unwrap();
 		let world = self.world.as_mut().unwrap();
 		player.tick(
-			if self.keys.is_pressed("d") { 1. } else { 0. } - if self.keys.is_pressed("a") { 1. } else { 0. },
-			if self.keys.is_pressed("s") { 1. } else { 0. } - if self.keys.is_pressed("w") { 1. } else { 0. },
+			if self.keys.is_pressed("d") { 0.25 } else { 0. } - if self.keys.is_pressed("a") { 0.25 } else { 0. },
+			if self.keys.is_pressed("s") { 0.25 } else { 0. } - if self.keys.is_pressed("w") { 0.25 } else { 0. },
 		);
 		self.world_renderer.draw_to(&mut self.canvas, world, player.x(), player.y());
 	}
