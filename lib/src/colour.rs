@@ -2,19 +2,38 @@ use std::convert::TryFrom;
 
 #[derive(Clone, Copy)]
 pub struct Colour {
+	a: u8,
 	r: u8,
 	g: u8,
 	b: u8,
-	a: u8,
+}
+
+impl Colour {
+	pub fn rgba(r: u8, g: u8, b: u8, a: u8) -> Colour {
+		Self {
+			a,
+			r,
+			g,
+			b,
+		}
+	}
+	
+	pub fn rgb(r: u8, g: u8, b: u8) -> Colour {
+		Self::rgba(r, g, b, 255)
+	}
+	
+	pub fn grey(l: u8) -> Colour {
+		Self::rgb(l, l, l)
+	}
 }
 
 impl From<u32> for Colour {
 	fn from(value: u32) -> Self {
 		Colour {
-			r: (value >>  0) as u8,
-			g: (value >>  8) as u8,
-			b: (value >> 16) as u8,
 			a: (value >> 24) as u8,
+			r: (value >> 16) as u8,
+			g: (value >>  8) as u8,
+			b: (value >>  0) as u8,
 		}
 	}
 }
@@ -66,15 +85,19 @@ impl TryFrom<&str> for Colour {
 
 impl From<Colour> for u32 {
 	fn from(value: Colour) -> u32 {
-		(value.r as u32) <<  0 |
+		(value.a as u32) << 24 |
+		(value.r as u32) << 16 |
 		(value.g as u32) <<  8 |
-		(value.b as u32) << 16 |
-		(value.a as u32) << 24
+		(value.b as u32) <<  0
 	}
 }
 
 impl From<Colour> for String {
 	fn from(value: Colour) -> String {
-		format!("#{:08X}", u32::from(value))
+		format!("#{:08X}",
+			(value.r as u32) << 24 |
+			(value.g as u32) << 16 |
+			(value.b as u32) <<  8 |
+			(value.a as u32) <<  0)
 	}
 }
