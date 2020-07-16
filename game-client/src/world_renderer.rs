@@ -9,17 +9,7 @@ use game_interface::{
 
 use game_state::World;
 
-use lib::{
-	Colour,
-	NoiseConfig,
-	NoiseDomain,
-	Logger,
-	Octaves,
-	ScaleNoise,
-	Seeded,
-	Simplex,
-	vector,
-};
+use lib::Logger;
 
 pub struct WorldRenderer<TCanvas: Canvas> {
 	canvas: TCanvas,

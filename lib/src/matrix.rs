@@ -111,7 +111,9 @@ macro_rules! vector {
 }
 
 
-impl<T: Copy, const M: usize, const N: usize> Zero for Matrix<T, M, N> where T: Zero {
+impl<T: Copy, const M: usize, const N: usize> Zero for Matrix<T, M, N> where
+	T: Zero,
+{
 	fn zero() -> Self {
 		Self::init(|_| T::zero())
 	}
@@ -128,7 +130,9 @@ impl<T: Copy, const M: usize, const N: usize> Zero for Matrix<T, M, N> where T: 
 	}
 }
 
-impl<T: Copy, const N: usize> One for Matrix<T, N, N> where T: Zero + One + MulAdd<Output = T> {
+impl<T: Copy, const N: usize> One for Matrix<T, N, N> where
+	T: Zero + One + MulAdd<Output = T>,
+{
 	fn one() -> Self {
 		Self::init(|[row, col]| if row == col { T::one() } else { T::zero() })
 	}
@@ -152,7 +156,9 @@ impl<T: Copy, const N: usize> One for Matrix<T, N, N> where T: Zero + One + MulA
 	*/
 }
 
-impl<T, const M: usize, const N: usize> PartialEq for Matrix<T, M, N> where T: PartialEq {
+impl<T, const M: usize, const N: usize> PartialEq for Matrix<T, M, N> where
+	T: PartialEq,
+{
 	fn eq(&self, rhs: &Matrix<T, M, N>) -> bool {
 		for col in 0..N {
 			for row in 0..M {
@@ -181,7 +187,10 @@ impl<T: Copy, const M: usize, const N: usize> Transpose for Matrix<T, M, N> {
 	}
 }
 
-impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const N: usize> Mul<TRhs> for Matrix<TLhs, M, N> where TLhs: Mul<TRhs, Output = TOutput>, TRhs: NotMatrix<TRhs, N> {
+impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const N: usize> Mul<TRhs> for Matrix<TLhs, M, N> where
+	TLhs: Mul<TRhs, Output = TOutput>,
+	TRhs: NotMatrix<TRhs, N>,
+{
 	type Output = Matrix<TOutput, M, N>;
 	
 	fn mul(self, rhs: TRhs) -> Self::Output {
@@ -191,13 +200,18 @@ impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const N: usize> Mul<TRhs> 
 	}
 }
 
-impl<TLhs: Copy, TRhs: Copy, const M: usize, const N: usize> MulAssign<TRhs> for Matrix<TLhs, M, N> where Self: Mul<TRhs, Output = Matrix<TLhs, M, N>>, TRhs: NotMatrix<TRhs, N> {
+impl<TLhs: Copy, TRhs: Copy, const M: usize, const N: usize> MulAssign<TRhs> for Matrix<TLhs, M, N> where
+	Self: Mul<TRhs, Output = Matrix<TLhs, M, N>>,
+	TRhs: NotMatrix<TRhs, N>,
+{
 	fn mul_assign(&mut self, rhs: TRhs) {
 		take(self, |s| s.mul(rhs));
 	}
 }
 
-impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const N: usize> Div<TRhs> for Matrix<TLhs, M, N> where TLhs: Div<TRhs, Output = TOutput> {
+impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const N: usize> Div<TRhs> for Matrix<TLhs, M, N> where
+	TLhs: Div<TRhs, Output = TOutput>,
+{
 	type Output = Matrix<TOutput, M, N>;
 	
 	fn div(self, rhs: TRhs) -> Self::Output {
@@ -207,13 +221,17 @@ impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const N: usize> Div<TRhs> 
 	}
 }
 
-impl<TLhs: Copy, TRhs: Copy, const M: usize, const N: usize> DivAssign<TRhs> for Matrix<TLhs, M, N> where Self: Div<TRhs, Output = Matrix<TLhs, M, N>> {
+impl<TLhs: Copy, TRhs: Copy, const M: usize, const N: usize> DivAssign<TRhs> for Matrix<TLhs, M, N> where
+	Self: Div<TRhs, Output = Matrix<TLhs, M, N>>,
+{
 	fn div_assign(&mut self, rhs: TRhs) {
 		take(self, |s| s.div(rhs));
 	}
 }
 
-impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const N: usize> Add<Matrix<TRhs, M, N>> for Matrix<TLhs, M, N> where TLhs: Add<TRhs, Output = TOutput> {
+impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const N: usize> Add<Matrix<TRhs, M, N>> for Matrix<TLhs, M, N> where
+	TLhs: Add<TRhs, Output = TOutput>,
+{
 	type Output = Matrix<TOutput, M, N>;
 	
 	fn add(self, rhs: Matrix<TRhs, M, N>) -> Self::Output {
@@ -223,13 +241,17 @@ impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const N: usize> Add<Matrix
 	}
 }
 
-impl<TLhs: Copy, TRhs: Copy, const M: usize, const N: usize> AddAssign<Matrix<TRhs, M, N>> for Matrix<TLhs, M, N> where Self: Add<Matrix<TRhs, M, N>, Output = Self> {
+impl<TLhs: Copy, TRhs: Copy, const M: usize, const N: usize> AddAssign<Matrix<TRhs, M, N>> for Matrix<TLhs, M, N> where
+	Self: Add<Matrix<TRhs, M, N>, Output = Self>,
+{
 	fn add_assign(&mut self, rhs: Matrix<TRhs, M, N>) {
 		take(self, |s| s.add(rhs));
 	}
 }
 
-impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const N: usize> Sub<Matrix<TRhs, M, N>> for Matrix<TLhs, M, N> where TLhs: Sub<TRhs, Output = TOutput> {
+impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const N: usize> Sub<Matrix<TRhs, M, N>> for Matrix<TLhs, M, N> where
+	TLhs: Sub<TRhs, Output = TOutput>,
+{
 	type Output = Matrix<TOutput, M, N>;
 	
 	fn sub(self, rhs: Matrix<TRhs, M, N>) -> Self::Output {
@@ -239,7 +261,9 @@ impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const N: usize> Sub<Matrix
 	}
 }
 
-impl<T: Copy, TOutput, const M: usize, const N: usize> Neg for Matrix<T, M, N> where T: Neg<Output = TOutput> {
+impl<T: Copy, TOutput, const M: usize, const N: usize> Neg for Matrix<T, M, N> where
+	T: Neg<Output = TOutput>,
+{
 	type Output = Matrix<TOutput, M, N>;
 	
 	fn neg(self) -> Self::Output {
@@ -249,13 +273,18 @@ impl<T: Copy, TOutput, const M: usize, const N: usize> Neg for Matrix<T, M, N> w
 	}
 }
 
-impl<TLhs: Copy, TRhs: Copy, const M: usize, const N: usize> SubAssign<Matrix<TRhs, M, N>> for Matrix<TLhs, M, N> where Self: Sub<Matrix<TRhs, M, N>, Output = Self> {
+impl<TLhs: Copy, TRhs: Copy, const M: usize, const N: usize> SubAssign<Matrix<TRhs, M, N>> for Matrix<TLhs, M, N> where
+	Self: Sub<Matrix<TRhs, M, N>, Output = Self>,
+{
 	fn sub_assign(&mut self, rhs: Matrix<TRhs, M, N>) {
 		take(self, |s| s.sub(rhs));
 	}
 }
 
-impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const K: usize, const N: usize> Mul<Matrix<TRhs, K, N>> for Matrix<TLhs, M, K> where TLhs: Mul<TRhs, Output = TOutput> + MulAdd<TRhs, TOutput, Output = TOutput>, TOutput: Zero {
+impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const K: usize, const N: usize> Mul<Matrix<TRhs, K, N>> for Matrix<TLhs, M, K> where
+	TLhs: Mul<TRhs, Output = TOutput> + MulAdd<TRhs, TOutput, Output = TOutput>,
+	TOutput: Zero,
+{
 	type Output = Matrix<TOutput, M, N>;
 	
 	fn mul(self, rhs: Matrix<TRhs, K, N>) -> Self::Output {
@@ -269,13 +298,17 @@ impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const K: usize, const N: u
 	}
 }
 
-impl<TLhs: Copy, TRhs: Copy, const M: usize, const N: usize> MulAssign<Matrix<TRhs, M, N>> for Matrix<TLhs, M, N> where Self: Mul<Matrix<TRhs, M, N>, Output = Self> {
+impl<TLhs: Copy, TRhs: Copy, const M: usize, const N: usize> MulAssign<Matrix<TRhs, M, N>> for Matrix<TLhs, M, N> where
+	Self: Mul<Matrix<TRhs, M, N>, Output = Self>,
+{
 	fn mul_assign(&mut self, rhs: Matrix<TRhs, M, N>) {
 		take(self, |s| s.mul(rhs));
 	}
 }
 
-impl<TLhs: Copy, TA: Copy, TB: Copy, const M: usize, const K: usize, const N: usize> MulAdd<Matrix<TA, K, N>, Matrix<TB, M, N>> for Matrix<TLhs, M, K> where TLhs: MulAdd<TA, TB, Output = TB> {
+impl<TLhs: Copy, TA: Copy, TB: Copy, const M: usize, const K: usize, const N: usize> MulAdd<Matrix<TA, K, N>, Matrix<TB, M, N>> for Matrix<TLhs, M, K> where
+	TLhs: MulAdd<TA, TB, Output = TB>,
+{
 	type Output = Matrix<TB, M, N>;
 	
 	fn mul_add(self, a: Matrix<TA, K, N>, b: Matrix<TB, M, N>) -> Self::Output {
@@ -289,7 +322,9 @@ impl<TLhs: Copy, TA: Copy, TB: Copy, const M: usize, const K: usize, const N: us
 	}
 }
 
-impl<TLhs: Copy, TA: Copy, TB: Copy, const M: usize, const N: usize> MulAddAssign<Matrix<TA, M, N>, Matrix<TB, M, N>> for Matrix<TLhs, M, N> where Self: MulAdd<Matrix<TA, M, N>, Matrix<TB, M, N>, Output = Self> {
+impl<TLhs: Copy, TA: Copy, TB: Copy, const M: usize, const N: usize> MulAddAssign<Matrix<TA, M, N>, Matrix<TB, M, N>> for Matrix<TLhs, M, N> where
+	Self: MulAdd<Matrix<TA, M, N>, Matrix<TB, M, N>, Output = Self>,
+{
 	fn mul_add_assign(&mut self, a: Matrix<TA, M, N>, b: Matrix<TB, M, N>) {
 		take(self, |s| s.mul_add(a, b));
 	}
