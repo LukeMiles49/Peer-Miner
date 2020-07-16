@@ -2,6 +2,9 @@
 #![feature(const_generics)]
 #![feature(negative_impls)]
 
+mod atomic;
+pub use atomic::*;
+
 mod colour;
 pub use colour::*;
 

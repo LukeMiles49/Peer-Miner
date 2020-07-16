@@ -52,21 +52,21 @@ impl TryFrom<&str> for Colour {
 			let c1 = chars.next()?;
 			let c2 = chars.next()?;
 			if chars.peek() == None {
-				formatted_value = format!("{0}{0}{1}{1}{2}{2}FF", c0, c1, c2);
+				formatted_value = format!("FF{0}{0}{1}{1}{2}{2}", c0, c1, c2);
 			} else {
 				let c3 = chars.next()?;
 				if chars.peek() == None {
-					formatted_value = format!("{0}{0}{1}{1}{2}{2}{3}{3}", c0, c1, c2, c3);
+					formatted_value = format!("{3}{3}{0}{0}{1}{1}{2}{2}", c0, c1, c2, c3);
 				} else {
 					let c4 = chars.next()?;
 					let c5 = chars.next()?;
 					if chars.peek() == None {
-						formatted_value = format!("{0}{1}{2}{3}{4}{5}FF", c0, c1, c2, c3, c4, c5);
+						formatted_value = format!("FF{0}{1}{2}{3}{4}{5}", c0, c1, c2, c3, c4, c5);
 					} else {
 						let c6 = chars.next()?;
 						let c7 = chars.next()?;
 						if chars.peek() == None {
-							formatted_value = format!("{0}{1}{2}{3}{4}{5}{6}{7}", c0, c1, c2, c3, c4, c5, c6, c7);
+							formatted_value = format!("{6}{7}{0}{1}{2}{3}{4}{5}", c0, c1, c2, c3, c4, c5, c6, c7);
 						} else {
 							return None;
 						}

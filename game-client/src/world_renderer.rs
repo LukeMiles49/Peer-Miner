@@ -9,6 +9,18 @@ use game_interface::{
 
 use game_state::World;
 
+use lib::{
+	Colour,
+	NoiseConfig,
+	NoiseDomain,
+	Logger,
+	Octaves,
+	ScaleNoise,
+	Seeded,
+	Simplex,
+	vector,
+};
+
 pub struct WorldRenderer<TCanvas: Canvas> {
 	canvas: TCanvas,
 	x: i32,
@@ -34,7 +46,7 @@ impl<TCanvas: Canvas> WorldRenderer<TCanvas> {
 		}
 	}
 	
-	pub fn draw_to(&mut self, dest: &mut TCanvas, world: &World, player_x: f64, player_y: f64) {
+	pub fn draw_to(&mut self, dest: &mut TCanvas, world: &mut World, player_x: f64, player_y: f64) {
 		let i_width = self.width as i32;
 		let i_height = self.height as i32;
 		
@@ -112,7 +124,7 @@ impl<TCanvas: Canvas> WorldRenderer<TCanvas> {
 		);
 	}
 	
-	pub fn redraw(&mut self, world: &World, x: i32, y: i32) {
+	pub fn redraw(&mut self, world: &mut World, x: i32, y: i32) {
 		let local_x = x - self.x;
 		let local_y = y - self.y;
 		if local_x >= 0 && local_x <= self.width as i32 && local_y >= 0 && local_y <= self.height as i32 {
@@ -123,6 +135,6 @@ impl<TCanvas: Canvas> WorldRenderer<TCanvas> {
 		}
 	}
 	
-	const SCALE: u32 = 4;
+	const SCALE: u32 = 8;
 	const F_SCALE: f64 = Self::SCALE as f64;
 }
