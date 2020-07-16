@@ -1,27 +1,23 @@
 use std::{
 	cmp::*,
-	marker::PhantomData,
 };
 
 use game_interface::{
 	Canvas,
-	Logger,
 	SmoothingQuality,
 };
 
 use game_state::World;
 
-pub struct WorldRenderer<TCanvas: Canvas<TLogger>, TLogger: Logger> {
+pub struct WorldRenderer<TCanvas: Canvas> {
 	canvas: TCanvas,
 	x: i32,
 	y: i32,
 	width: u32,
 	height: u32,
-	
-	__phantom: PhantomData<TLogger>,
 }
 
-impl<TCanvas: Canvas<TLogger>, TLogger: Logger> WorldRenderer<TCanvas, TLogger> {
+impl<TCanvas: Canvas> WorldRenderer<TCanvas> {
 	pub fn new(width: u32, height: u32) -> Self {
 		let w = width / Self::SCALE;
 		let h = height / Self::SCALE;
@@ -35,8 +31,6 @@ impl<TCanvas: Canvas<TLogger>, TLogger: Logger> WorldRenderer<TCanvas, TLogger> 
 			y: i32::MIN / 2,
 			width: w,
 			height: h,
-			
-			__phantom: PhantomData,
 		}
 	}
 	
@@ -125,7 +119,7 @@ impl<TCanvas: Canvas<TLogger>, TLogger: Logger> WorldRenderer<TCanvas, TLogger> 
 			let block = world.get(x, y);
 			self.canvas.fill_rect(block.colour, local_x as f64, local_y as f64, 1., 1.);
 		} else {
-			TLogger::warning("Drawing outside canvas");
+			Logger::warning("Drawing outside canvas");
 		}
 	}
 	

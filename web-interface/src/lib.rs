@@ -1,4 +1,5 @@
 #![feature(generic_associated_types)]
+#![feature(set_stdio)]
 
 mod canvas;
 pub use canvas::*;

@@ -1,5 +1,3 @@
-use super::Logger;
-
 use lib::Colour;
 
 pub trait Image {
@@ -7,7 +5,7 @@ pub trait Image {
 	fn height(&self) -> u32;
 }
 
-pub trait Canvas<TLogger: Logger>: Image {
+pub trait Canvas: Image {
 	type TImage<'a>: Image;
 	
 	fn create(width: u32, height: u32) -> Self;

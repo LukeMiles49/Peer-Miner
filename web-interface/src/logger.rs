@@ -1,24 +1,44 @@
-use game_interface::{
-	Logger,
-	LogLevel,
+use wasm_bindgen::prelude::*;
+
+use std::sync::{
+	Arc,
+	Mutex,
 };
 
-use wasm_bindgen::prelude::*;
+use lib::FnWriter;
 
 #[wasm_bindgen]
 extern "C" {
 	#[wasm_bindgen(js_namespace = console)]
 	fn log(msg: &str);
+	
+	#[wasm_bindgen(js_namespace = console)]
+	fn warn(msg: &str);
 }
 
-pub struct WebLogger { }
+fn line_buffered_fn_writer<F: Fn(&str) + Send + Sync>(handler: F) -> FnWriter<impl FnMut(&[u8]) + Send> {
+	let partial_line = Arc::new(Mutex::new(String::new()));
+	FnWriter::new(move |buf| {
+		let mut partial_line = partial_line.lock().unwrap();
+		match String::from_utf8(Vec::from(buf)) {
+			Ok(msg) => {
+				let msg = msg + "\n"; // Add a newline because lines doesn't return the last line if empty
+				let mut lines = msg.lines();
+				*partial_line += lines.next().unwrap();
+				for line in lines {
+					handler(&partial_line);
+					*partial_line = String::from(line);
+				}
+			},
+			Err(_) => (),
+		}
+	})
+}
 
-impl Logger for WebLogger {
-	const VERBOSITY: LogLevel =
-		if cfg!(feature = "debug") { LogLevel::Debug }
-		else { LogLevel::Warning };
+pub fn bind_loggers() {
+	std::panic::set_hook(Box::new(console_error_panic_hook::hook));
 	
-	fn print(msg: &str) {
-		log(msg);
-	}
+	std::io::set_print(Some(Box::new(line_buffered_fn_writer(log))));
+	
+	std::io::set_panic(Some(Box::new(line_buffered_fn_writer(warn))));
 }

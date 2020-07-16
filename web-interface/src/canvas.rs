@@ -1,5 +1,3 @@
-use super::WebLogger;
-
 use web_sys::{
 	CanvasRenderingContext2d,
 	HtmlCanvasElement,
@@ -52,7 +50,7 @@ impl Image for WebCanvas {
 	}
 }
 
-impl Canvas<WebLogger> for WebCanvas {
+impl Canvas for WebCanvas {
 	type TImage<'a> = WebImage<'a>;
 	
 	fn create(width: u32, height: u32) -> Self {

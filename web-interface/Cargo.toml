@@ -5,6 +5,7 @@ authors = ["Luke Miles <luke.49@live.co.uk>"]
 edition = "2018"
 
 [dependencies]
+console_error_panic_hook = "0.1"
 wasm-bindgen = { version = "0.2", features = ["nightly"] }
 js-sys = "0.3"
 game-interface = { path = "../game-interface" }

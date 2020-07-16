@@ -11,10 +11,7 @@ use wasm_bindgen::prelude::*;
 
 use game_interface::Timer;
 
-use super::{
-	Environment,
-	WebLogger,
-};
+use super::Environment;
 
 #[wasm_bindgen]
 extern "C" {
@@ -39,7 +36,7 @@ impl<Env: Environment> WebTimer<Env> {
 	}
 }
 
-impl<Env: Environment> Timer<Env::TState, WebLogger> for WebTimer<Env> {
+impl<Env: Environment> Timer<Env::TState> for WebTimer<Env> {
 	type TTimeout = Handle<dyn FnMut()>;
 	type TInterval = Handle<dyn FnMut()>;
 	type TFrame = Handle<dyn FnMut(f64)>;

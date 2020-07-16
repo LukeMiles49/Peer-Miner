@@ -8,6 +8,3 @@ pub use keys::*;
 
 mod timer;
 pub use timer::*;
-
-mod logger;
-pub use logger::*;

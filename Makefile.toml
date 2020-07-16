@@ -83,7 +83,7 @@ script = [
 	"cargo make clean --cwd lib",
 	"cargo make clean --cwd peer-client",
 	"cargo make clean --cwd peer-server",
-	"cargo make uninstall --cwd web-interface",
+	"cargo make clean --cwd web-interface",
 	"cargo make uninstall --cwd web-wrapper",
 ]
 

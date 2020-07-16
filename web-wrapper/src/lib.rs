@@ -11,13 +11,6 @@ use web_interface::{
 	WebCanvas,
 	WebKeys,
 	WebTimer,
-	WebLogger,
-};
-
-#[cfg(feature = "debug")]
-use {
-	console_error_panic_hook,
-	std::panic,
 };
 
 #[wasm_bindgen]
@@ -51,7 +44,6 @@ impl Environment for Env {
 		WebTimer<Self>,
 		WebCanvas,
 		WebKeys<Self>,
-		WebLogger,
 	>;
 	
 	// TODO: Run-time checks?
@@ -72,8 +64,8 @@ impl Environment for Env {
 
 #[wasm_bindgen(start)]
 pub fn start() {
-	#[cfg(debug_assertions)]
-	panic::set_hook(Box::new(console_error_panic_hook::hook));
+	#[cfg(feature = "debug")]
+	web_interface::bind_loggers();
 	
 	let canvas = getElementById("game-canvas")
 		.unwrap()

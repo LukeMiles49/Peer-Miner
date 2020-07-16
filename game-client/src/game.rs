@@ -4,7 +4,6 @@ use game_interface::{
 	Canvas,
 	Keys,
 	Timer,
-	Logger,
 	SmoothingQuality,
 };
 
@@ -14,16 +13,17 @@ use game_state::{
 	World,
 };
 
+use lib::Logger;
+
 pub struct Game<
-	TTimer: 'static + Timer<Self, TLogger>,
-	TCanvas: 'static + Canvas<TLogger>,
-	TKeys: 'static + Keys<TLogger>,
-	TLogger: Logger,
+	TTimer: 'static + Timer<Self>,
+	TCanvas: 'static + Canvas,
+	TKeys: 'static + Keys,
 > {
 	timer: TTimer,
 	canvas: TCanvas,
 	keys: TKeys,
-	world_renderer: WorldRenderer<TCanvas, TLogger>,
+	world_renderer: WorldRenderer<TCanvas>,
 	rules: GameRules,
 	animation: Option<TTimer::TAnimation>,
 	world: Option<World>,
@@ -31,11 +31,10 @@ pub struct Game<
 }
 
 impl<
-	TTimer: 'static + Timer<Self, TLogger>,
-	TCanvas: 'static + Canvas<TLogger>,
-	TKeys: 'static + Keys<TLogger>,
-	TLogger: Logger,
-> Game<TTimer, TCanvas, TKeys, TLogger> {
+	TTimer: 'static + Timer<Self>,
+	TCanvas: 'static + Canvas,
+	TKeys: 'static + Keys,
+> Game<TTimer, TCanvas, TKeys> {
 	pub fn new(timer: TTimer, canvas: TCanvas, keys: TKeys) -> Self {
 		Self {
 			timer,
@@ -55,7 +54,7 @@ impl<
 		self.player = Some(Player::new(50., 50.));
 		self.animation = Some(self.timer.set_animation(Self::tick));
 		self.keys.start();
-		TLogger::info("Started");
+		Logger::info("Started");
 	}
 	
 	pub fn keys(&mut self) -> &mut TKeys {

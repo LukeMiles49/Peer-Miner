@@ -1,5 +1,3 @@
-use super::WebLogger;
-
 use std::{
 	collections::HashSet,
 	marker::PhantomData,
@@ -50,7 +48,7 @@ impl<Env: 'static + Environment> WebKeys<Env> {
 	}
 }
 
-impl<Env: 'static + Environment> Keys<WebLogger> for WebKeys<Env> {
+impl<Env: 'static + Environment> Keys for WebKeys<Env> {
 	fn start(&self) {
 		addKeyboardEventListener("keydown", &self.on_key_down_closure);
 		addKeyboardEventListener("keyup", &self.on_key_up_closure);
