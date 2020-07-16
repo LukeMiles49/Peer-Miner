@@ -16,3 +16,6 @@ pub use logger::*;
 
 mod matrix;
 pub use matrix::*;
+
+mod noise;
+pub use noise::*;

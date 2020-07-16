@@ -5,5 +5,7 @@ authors = ["Luke Miles <luke.49@live.co.uk>"]
 edition = "2018"
 
 [dependencies]
+lazy_static = "1.4"
 take_mut = "0.2"
 num = "0.3"
+rand = "0.7"
