@@ -20,8 +20,5 @@ features = [
 	"KeyboardEvent",
 ]
 
-[features]
-debug = []
-
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
