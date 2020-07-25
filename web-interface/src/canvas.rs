@@ -21,6 +21,8 @@ extern "C" {
 	fn createCanvasElement(element_type: &str) -> HtmlCanvasElement;
 }
 
+// TODO: Fast WASM canvas using ImagaData pointing to WASM memory?
+
 pub struct WebCanvas {
 	canvas: HtmlCanvasElement,
 	context: CanvasRenderingContext2d,
