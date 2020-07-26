@@ -13,7 +13,9 @@ impl<T, const N: usize> Init<T, usize> for [T; N] {
 		}
 		
 		// FIXME: Replace with transmute once it works with const generic array sizes
-		unsafe { std::mem::transmute_copy(&contents) }
+		let res = unsafe { std::mem::transmute_copy(&contents) };
+		std::mem::forget(contents);
+		res
 	}
 }
 

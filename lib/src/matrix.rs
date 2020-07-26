@@ -12,9 +12,11 @@ use std::ops::{
 use num::traits::{
 	Num,
 	One, Zero,
-	// TODO Inv, Pow,
+	Inv, Pow,
 	MulAdd, MulAddAssign,
 };
+
+use num::integer::Integer;
 
 use take_mut::take;
 
@@ -30,12 +32,21 @@ impl<T, const M: usize, const N: usize> Matrix<T, M, N> {
 			contents,
 		}
 	}
+	
+	pub fn swap_row(&mut self, i: usize, j: usize) {
+		for k in 0..N {
+			self.contents[k].swap(i, j);
+		}
+	}
+	
+	pub fn swap_col(&mut self, i: usize, j: usize) {
+		self.contents.swap(i, j);
+	}
 }
 
-// FIXME
-pub trait NotMatrix<T, const N: usize> { }
-impl<T, const M: usize, const N: usize> !NotMatrix<T, N> for Matrix<T, M, N> { }
-impl<TNum: Num, T, const N: usize> NotMatrix<T, N> for TNum { }
+pub trait Scalar { }
+impl<T, const M: usize, const N: usize> !Scalar for Matrix<T, M, N> { }
+impl<T: Num> Scalar for T { }
 
 impl<T, const M: usize, const N: usize> Init<T, [usize; 2]> for Matrix<T, M, N> {
 	fn init<F: Fn([usize; 2]) -> T>(elem: F) -> Self {
@@ -187,9 +198,11 @@ impl<T: Copy, const M: usize, const N: usize> Transpose for Matrix<T, M, N> {
 	}
 }
 
+// TODO: Define operations that can be performed in place in terms of the _Assign trait
+
 impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const N: usize> Mul<TRhs> for Matrix<TLhs, M, N> where
 	TLhs: Mul<TRhs, Output = TOutput>,
-	TRhs: NotMatrix<TRhs, N>,
+	TRhs: Scalar,
 {
 	type Output = Matrix<TOutput, M, N>;
 	
@@ -202,7 +215,7 @@ impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const N: usize> Mul<TRhs> 
 
 impl<TLhs: Copy, TRhs: Copy, const M: usize, const N: usize> MulAssign<TRhs> for Matrix<TLhs, M, N> where
 	Self: Mul<TRhs, Output = Matrix<TLhs, M, N>>,
-	TRhs: NotMatrix<TRhs, N>,
+	TRhs: Scalar,
 {
 	fn mul_assign(&mut self, rhs: TRhs) {
 		take(self, |s| s.mul(rhs));
@@ -211,6 +224,7 @@ impl<TLhs: Copy, TRhs: Copy, const M: usize, const N: usize> MulAssign<TRhs> for
 
 impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const N: usize> Div<TRhs> for Matrix<TLhs, M, N> where
 	TLhs: Div<TRhs, Output = TOutput>,
+	TRhs: Scalar,
 {
 	type Output = Matrix<TOutput, M, N>;
 	
@@ -223,6 +237,7 @@ impl<TLhs: Copy, TRhs: Copy, TOutput, const M: usize, const N: usize> Div<TRhs> 
 
 impl<TLhs: Copy, TRhs: Copy, const M: usize, const N: usize> DivAssign<TRhs> for Matrix<TLhs, M, N> where
 	Self: Div<TRhs, Output = Matrix<TLhs, M, N>>,
+	TRhs: Scalar,
 {
 	fn div_assign(&mut self, rhs: TRhs) {
 		take(self, |s| s.div(rhs));
@@ -327,5 +342,94 @@ impl<TLhs: Copy, TA: Copy, TB: Copy, const M: usize, const N: usize> MulAddAssig
 {
 	fn mul_add_assign(&mut self, a: Matrix<TA, M, N>, b: Matrix<TB, M, N>) {
 		take(self, |s| s.mul_add(a, b));
+	}
+}
+
+impl<TLhs: Copy, TRhs: Copy, const M: usize, const N: usize> Div<Matrix<TRhs, N, N>> for Matrix<TLhs, M, N> where
+	TLhs: MulAdd<TRhs, TLhs, Output = TLhs> + DivAssign<TRhs>,
+	TRhs: Zero /*+ One*/ + MulAdd<TRhs, TRhs, Output = TRhs> + DivAssign<TRhs> + Neg<Output = TRhs>,
+{
+	type Output = Self;
+	
+	fn div(mut self, mut rhs: Matrix<TRhs, N, N>) -> Self::Output {
+		for i in 0..N {
+			if let Some(j) = (i..N).find(|j| !rhs[[*j, *j]].is_zero()) {
+				if i != j {
+					rhs.swap_row(i, j);
+					self.swap_row(i, j);
+				}
+				
+				let factor = rhs[[i, i]];
+				// Never going to use this element again, so can skip this
+				// rhs[[i, i]] = T::one();
+				for k in i+1..N {
+					rhs[[i, k]] /= factor;
+				}
+				for k in 0..N {
+					self[[i, k]] /= factor;
+				}
+				
+				for j in (0..i).chain(i+1..N) {
+					let factor = -rhs[[j, i]];
+					// Never going to use this element again, so can skip this
+					// rhs[[j, i]] = T::zero();
+					for k in i+1..N {
+						rhs[[j, k]] = rhs[[i, k]].mul_add(factor, rhs[[j, k]]);
+					}
+					for k in 0..N {
+						self[[j, k]] = self[[i, k]].mul_add(factor, self[[j, k]]);
+					}
+				}
+			} else {
+				panic!("Matrix has no inverse")
+			}
+		}
+		
+		self
+	}
+}
+
+impl<T: Copy, const M: usize, const N: usize> DivAssign<Matrix<T, N, N>> for Matrix<T, M, N> where
+	Self: Div<Matrix<T, N, N>, Output = Self>,
+{
+	fn div_assign(&mut self, rhs: Matrix<T, N, N>) {
+		take(self, |s| s.div(rhs));
+	}
+}
+
+impl<T: Copy, const N: usize> Inv for Matrix<T, N, N> where
+	Self: One + Div<Self, Output = Self>,
+{
+	type Output = Self;
+	
+	fn inv(self) -> Self::Output {
+		Self::one().div(self)
+	}
+}
+
+// FIXME: Remove the Inv bound for Unsigned once Signed and Unsigned are mutually exclusive
+impl<T: Copy, TRhs, const N: usize> Pow<TRhs> for Matrix<T, N, N> where
+	Self: Inv<Output = Self> + One + MulAssign<Self>,
+	TRhs: Integer,
+{
+	type Output = Self;
+	
+	fn pow(mut self, mut rhs: TRhs) -> Self::Output {
+		if rhs < TRhs::zero() {
+			self = self.inv();
+			rhs = TRhs::zero() - rhs;
+		}
+		
+		let mut result = Self::one();
+		
+		while rhs > TRhs::zero() {
+			let (div, rem) = rhs.div_mod_floor(&(TRhs::one() + TRhs::one()));
+			rhs = div;
+			if rem == TRhs::one() {
+				result *= self;
+			}
+		}
+		
+		result
 	}
 }
