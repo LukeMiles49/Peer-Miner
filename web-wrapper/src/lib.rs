@@ -64,8 +64,9 @@ impl Environment for Env {
 
 #[wasm_bindgen(start)]
 pub fn start() {
-	#[cfg(feature = "debug")]
 	web_interface::bind_loggers();
+	#[cfg(feature = "debug")]
+	web_interface::bind_panics();
 	
 	let canvas = getElementById("game-canvas")
 		.unwrap()

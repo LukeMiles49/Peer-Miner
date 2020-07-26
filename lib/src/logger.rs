@@ -1,8 +1,10 @@
 pub enum Logger { }
 
 impl Logger {
-	// TODO: Feature flag
-	const VERBOSITY: LogLevel = LogLevel::Debug;
+	// TODO: Feature flag?
+	const VERBOSITY: LogLevel =
+		if cfg!(cfg_debug_assertions) { LogLevel::Info }
+		else { LogLevel::Error };
 	
 	pub fn log(level: LogLevel, msg: &str) {
 		if level >= Self::VERBOSITY {
@@ -38,6 +40,7 @@ pub enum LogLevel {
 	Warning = 2,
 	Error = 3,
 	Critical = 4,
+	None = 5,
 }
 
 impl From<LogLevel> for &str {
@@ -48,6 +51,7 @@ impl From<LogLevel> for &str {
 			LogLevel::Warning => "WARNING",
 			LogLevel::Error => "ERROR",
 			LogLevel::Critical => "CRITICAL",
+			LogLevel::None => "NONE",
 		}
 	}
 }

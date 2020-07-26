@@ -31,8 +31,10 @@ wasm-bindgen-test = "0.3"
 
 [profile.dev]
 opt-level = 2
+panic = "unwind"
 
 [profile.release]
 opt-level = 3
 codegen-units = 1
 lto = true
+panic = "abort"

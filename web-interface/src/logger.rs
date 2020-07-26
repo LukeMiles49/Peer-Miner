@@ -35,10 +35,12 @@ fn line_buffered_fn_writer<F: Fn(&str) + Send + Sync>(handler: F) -> FnWriter<im
 	})
 }
 
-pub fn bind_loggers() {
+pub fn bind_panics() {
 	std::panic::set_hook(Box::new(console_error_panic_hook::hook));
 	
-	std::io::set_print(Some(Box::new(line_buffered_fn_writer(log))));
-	
 	std::io::set_panic(Some(Box::new(line_buffered_fn_writer(warn))));
+}
+
+pub fn bind_loggers() {
+	std::io::set_print(Some(Box::new(line_buffered_fn_writer(log))));
 }

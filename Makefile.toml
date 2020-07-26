@@ -19,7 +19,9 @@ run_task = { name = ["game-server-start", "web-wrapper-start"], parallel = true 
 
 
 [tasks.build]
+script_runner = "@shell"
 script = [
+	"export RUSTFLAGS=$RUSTFLAGS --remap-path-prefix=${CARGO_MAKE_WORKING_DIRECTORY}= --remap-path-prefix=${CARGO_MAKE_CARGO_HOME}=.cargo",
 	"cargo make build --cwd game-server",
 	"cargo make build --cwd web-wrapper",
 ]
