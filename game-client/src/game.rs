@@ -1,5 +1,8 @@
 use super::*;
 
+use sized_matrix::Vector;
+use num_traits::Zero;
+
 use game_interface::{
 	Canvas,
 	Keys,
@@ -39,7 +42,7 @@ impl<
 		Self {
 			timer,
 			keys,
-			world_renderer: WorldRenderer::new(canvas.width(), canvas.height()),
+			world_renderer: WorldRenderer::new(canvas.size()),
 			canvas,
 			rules: GameRules::load(),
 			animation: None,
@@ -51,7 +54,7 @@ impl<
 	pub fn start(&'static mut self) {
 		self.canvas.set_smoothing_quality(SmoothingQuality::None);
 		self.world = Some(World::new(&self.rules, 123));
-		self.player = Some(Player::new(0., 0.));
+		self.player = Some(Player::new(Vector::zero()));
 		self.animation = Some(self.timer.set_animation(Self::tick));
 		self.keys.start();
 		Logger::info("Started");
@@ -65,9 +68,11 @@ impl<
 		let player = self.player.as_mut().unwrap();
 		let world = self.world.as_mut().unwrap();
 		player.tick(
-			if self.keys.is_pressed("d") { 1. } else { 0. } - if self.keys.is_pressed("a") { 1. } else { 0. },
-			if self.keys.is_pressed("s") { 1. } else { 0. } - if self.keys.is_pressed("w") { 1. } else { 0. },
+			Vector::vector([
+				if self.keys.is_pressed("d") { 1. } else { 0. } - if self.keys.is_pressed("a") { 1. } else { 0. },
+				if self.keys.is_pressed("s") { 1. } else { 0. } - if self.keys.is_pressed("w") { 1. } else { 0. },
+			])
 		);
-		self.world_renderer.draw_to(&mut self.canvas, world, player.x(), player.y());
+		self.world_renderer.draw_to(&mut self.canvas, world, player.pos());
 	}
 }

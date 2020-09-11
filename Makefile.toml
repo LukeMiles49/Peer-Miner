@@ -27,7 +27,7 @@ script = [
 ]
 
 
-[tasks.test]
+[tasks.test-nightly]
 script = [
 	"cargo make test --cwd game-client",
 	"cargo make test --cwd game-interface",
@@ -38,6 +38,12 @@ script = [
 	"cargo make test --cwd peer-server",
 	"cargo make test --cwd web-interface",
 	"cargo make test --cwd web-wrapper",
+]
+
+
+[tasks.test]
+script = [
+	"rustup run nightly cargo make test-nightly", # Not sure why this is needed
 ]
 
 

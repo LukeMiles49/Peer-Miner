@@ -15,6 +15,8 @@ use game_interface::{
 
 use lib::Colour;
 
+use sized_matrix::Vector;
+
 #[wasm_bindgen]
 extern "C" {
 	#[wasm_bindgen(js_namespace = document, js_name = "createElement")]
@@ -43,23 +45,19 @@ impl WebCanvas {
 }
 
 impl Image for WebCanvas {
-	fn width(&self) -> u32 {
-		self.canvas.width()
-	}
-	
-	fn height(&self) -> u32 {
-		self.canvas.height()
+	fn size(&self) -> Vector<u32, 2> {
+		Vector::vector([self.canvas.width(), self.canvas.height()])
 	}
 }
 
 impl Canvas for WebCanvas {
 	type TImage<'a> = WebImage<'a>;
 	
-	fn create(width: u32, height: u32) -> Self {
+	fn create(size: Vector<u32, 2>) -> Self {
 		let canvas = createCanvasElement("canvas");
 		
-		canvas.set_width(width);
-		canvas.set_height(height);
+		canvas.set_width(size[0]);
+		canvas.set_height(size[1]);
 		
 		Self::new(canvas)
 	}
@@ -74,42 +72,42 @@ impl Canvas for WebCanvas {
 		}
 	}
 	
-	fn fill_rect(&mut self, colour: Colour, x: f64, y: f64, w: f64, h: f64) {
+	fn fill_rect(&mut self, colour: Colour, pos: Vector<f64, 2>, size: Vector<f64, 2>) {
 		self.context.set_fill_style(&String::from(colour).into());
-		self.context.fill_rect(x, y, w, h);
+		self.context.fill_rect(pos[0], pos[1], size[0], size[1]);
 	}
 	
-	fn draw_image(&mut self, image: WebImage, dx: f64, dy: f64) {
+	fn draw_image(&mut self, image: WebImage, pos: Vector<f64, 2>) {
 		match image {
-			WebImage::ImageElement(img) => self.context.draw_image_with_html_image_element(img, dx, dy).unwrap(),
-			WebImage::CanvasElement(img) => self.context.draw_image_with_html_canvas_element(img, dx, dy).unwrap(),
+			WebImage::ImageElement(img) => self.context.draw_image_with_html_image_element(img, pos[0], pos[1]).unwrap(),
+			WebImage::CanvasElement(img) => self.context.draw_image_with_html_canvas_element(img, pos[0], pos[1]).unwrap(),
 		};
 	}
 	
-	fn draw_image_scaled(&mut self, image: WebImage, dx: f64, dy: f64, dw: f64, dh: f64) {
+	fn draw_image_scaled(&mut self, image: WebImage, pos: Vector<f64, 2>, size: Vector<f64, 2>) {
 		match image {
-			WebImage::ImageElement(img) => self.context.draw_image_with_html_image_element_and_dw_and_dh(img, dx, dy, dw, dh).unwrap(),
-			WebImage::CanvasElement(img) => self.context.draw_image_with_html_canvas_element_and_dw_and_dh(img, dx, dy, dw, dh).unwrap(),
+			WebImage::ImageElement(img) => self.context.draw_image_with_html_image_element_and_dw_and_dh(img, pos[0], pos[1], size[0], size[1]).unwrap(),
+			WebImage::CanvasElement(img) => self.context.draw_image_with_html_canvas_element_and_dw_and_dh(img, pos[0], pos[1], size[0], size[1]).unwrap(),
 		};
 	}
 	
-	fn draw_image_segment_scaled(&mut self, image: WebImage, sx: f64, sy: f64, sw: f64, sh: f64, dx: f64, dy: f64, dw: f64, dh: f64) {
+	fn draw_image_segment_scaled(&mut self, image: WebImage, source_pos: Vector<f64, 2>, source_size: Vector<f64, 2>, dest_pos: Vector<f64, 2>, dest_size: Vector<f64, 2>) {
 		match image {
-			WebImage::ImageElement(img) => self.context.draw_image_with_html_image_element_and_sw_and_sh_and_dx_and_dy_and_dw_and_dh(img, sx, sy, sw, sh, dx, dy, dw, dh).unwrap(),
-			WebImage::CanvasElement(img) => self.context.draw_image_with_html_canvas_element_and_sw_and_sh_and_dx_and_dy_and_dw_and_dh(img, sx, sy, sw, sh, dx, dy, dw, dh).unwrap(),
+			WebImage::ImageElement(img) => self.context.draw_image_with_html_image_element_and_sw_and_sh_and_dx_and_dy_and_dw_and_dh(img, source_pos[0], source_pos[1], source_size[0], source_size[1], dest_pos[0], dest_pos[1], dest_size[0], dest_size[1]).unwrap(),
+			WebImage::CanvasElement(img) => self.context.draw_image_with_html_canvas_element_and_sw_and_sh_and_dx_and_dy_and_dw_and_dh(img, source_pos[0], source_pos[1], source_size[0], source_size[1], dest_pos[0], dest_pos[1], dest_size[0], dest_size[1]).unwrap(),
 		};
 	}
 	
-	fn draw_self(&mut self, dx: f64, dy: f64) {
-		self.context.draw_image_with_html_canvas_element(&self.canvas, dx, dy).unwrap()
+	fn draw_self(&mut self, pos: Vector<f64, 2>) {
+		self.context.draw_image_with_html_canvas_element(&self.canvas, pos[0], pos[1]).unwrap()
 	}
 	
-	fn draw_self_scaled(&mut self, dx: f64, dy: f64, dw: f64, dh: f64) {
-		self.context.draw_image_with_html_canvas_element_and_dw_and_dh(&self.canvas, dx, dy, dw, dh).unwrap()
+	fn draw_self_scaled(&mut self, pos: Vector<f64, 2>, size: Vector<f64, 2>) {
+		self.context.draw_image_with_html_canvas_element_and_dw_and_dh(&self.canvas, pos[0], pos[1], size[0], size[1]).unwrap()
 	}
 	
-	fn draw_self_segment_scaled(&mut self, sx: f64, sy: f64, sw: f64, sh: f64, dx: f64, dy: f64, dw: f64, dh: f64) {
-		self.context.draw_image_with_html_canvas_element_and_sw_and_sh_and_dx_and_dy_and_dw_and_dh(&self.canvas, sx, sy, sw, sh, dx, dy, dw, dh).unwrap()
+	fn draw_self_segment_scaled(&mut self, source_pos: Vector<f64, 2>, source_size: Vector<f64, 2>, dest_pos: Vector<f64, 2>, dest_size: Vector<f64, 2>) {
+		self.context.draw_image_with_html_canvas_element_and_sw_and_sh_and_dx_and_dy_and_dw_and_dh(&self.canvas, source_pos[0], source_pos[1], source_size[0], source_size[1], dest_pos[0], dest_pos[1], dest_size[0], dest_size[1]).unwrap()
 	}
 	
 	
@@ -124,17 +122,10 @@ pub enum WebImage<'a> {
 }
 
 impl Image for WebImage<'_> {
-	fn width(&self) -> u32 {
+	fn size(&self) -> Vector<u32, 2> {
 		match self {
-			WebImage::ImageElement(img) => img.natural_width(),
-			WebImage::CanvasElement(img) => img.width(),
-		}
-	}
-	
-	fn height(&self) -> u32 {
-		match self {
-			WebImage::ImageElement(img) => img.natural_height(),
-			WebImage::CanvasElement(img) => img.height(),
+			WebImage::ImageElement(img) => Vector::vector([img.natural_width(), img.natural_height()]),
+			WebImage::CanvasElement(img) => Vector::vector([img.width(), img.height()]),
 		}
 	}
 }

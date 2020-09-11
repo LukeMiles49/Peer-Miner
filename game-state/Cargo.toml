@@ -7,3 +7,6 @@ edition = "2018"
 [dependencies]
 lib = { path = "../lib" }
 multiarray = "0.1"
+higher_order_functions = "^0.1.1"
+sized_matrix = "^0.2.2"
+noise_fn = "^0.1.1"

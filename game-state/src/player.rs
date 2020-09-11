@@ -1,26 +1,21 @@
+use sized_matrix::Vector;
+
 pub struct Player {
-	x: f64,
-	y: f64,
+	pos: Vector<f64, 2>,
 }
 
 impl Player {
-	pub fn new(x: f64, y: f64) -> Self {
+	pub fn new(pos: Vector<f64, 2>) -> Self {
 		Player {
-			x,
-			y,
+			pos,
 		}
 	}
 	
-	pub fn x(&self) -> f64 {
-		self.x
+	pub fn pos(&self) -> Vector<f64, 2> {
+		self.pos
 	}
 	
-	pub fn y(&self) -> f64 {
-		self.y
-	}
-	
-	pub fn tick(&mut self, kx: f64, ky: f64) {
-		self.x += kx;
-		self.y += ky;
+	pub fn tick(&mut self, k: Vector<f64, 2>) {
+		self.pos += k;
 	}
 }

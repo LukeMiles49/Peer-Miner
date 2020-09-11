@@ -2,21 +2,27 @@ use super::*;
 
 use std::convert::TryFrom;
 
-use lib::{
-	Colour,
-	Init,
-	NoiseConfig,
+use lib::Colour;
+
+use higher_order_functions::{Init, Map};
+use sized_matrix::Vector;
+use noise_fn::{
+	Seedable,
 	NoiseDomain,
+	Config,
 	Octaves,
 	ScaleNoise,
-	Seeded,
+	AddNoise,
+	Gradient,
 	Simplex,
-	vector,
+	helpers::IgnoreSeed,
 };
+
+type GameNoise = AddNoise<ScaleNoise<Octaves<Simplex, 10>, f64, f64>, IgnoreSeed<u64, Gradient<f64, 2>>>;
 
 pub struct GameRules {
 	pub blocks: Vec<Block>,
-	pub depth: ScaleNoise<Octaves<Simplex, 10>, f64, f64, f64>,
+	pub depth: Config<GameNoise>,
 }
 
 impl GameRules {
@@ -28,7 +34,20 @@ impl GameRules {
 		
 		Self {
 			blocks,
-			depth: ScaleNoise::new(Octaves::<_, 10>::new(Simplex::new(), 2.0, 0.5), 1.0 / 4096.0, 6.0),
+			depth: AddNoise::new(
+				ScaleNoise::new(
+					Octaves::<_, 10>::new(
+						Simplex::new(),
+						2.0, 0.5,
+					),
+					1.0 / 4096.0, 6.0,
+				),
+				IgnoreSeed::new(
+					Gradient::new(
+						Vector::vector([0.0, 1.0 / 32.0]),
+					)
+				),
+			),
 		}
 	}
 	
@@ -36,12 +55,10 @@ impl GameRules {
 		&self.blocks[id as usize]
 	}
 	
-	pub fn generate_chunk(&self, world: &WorldGenParams, chunk_x: i32, chunk_y: i32) -> Chunk {
-		let chunk = Chunk::init(|[local_x, local_y]| -> u16 {
-			let x = chunk_x * Chunk::I_SIZE + local_x as i32;
-			let y = chunk_y * Chunk::I_SIZE + local_y as i32;
-			let value = world.depth.noise(vector![x as f64, y as f64]);
-			let value = value + (y as f64 / 32.);
+	pub fn generate_chunk(&self, world: &WorldGenParams, chunk: Vector<i32, 2>) -> Chunk {
+		let chunk = Chunk::init(|local| -> u16 {
+			let pos = chunk * Chunk::I_SIZE + local.map(|x| x as i32);
+			let value = world.depth.noise(pos.map(f64::from));
 			if value > 0.0 { 1 } else { 0 }
 		});
 		
@@ -50,7 +67,7 @@ impl GameRules {
 }
 
 pub struct WorldGenParams {
-	pub depth: Seeded<ScaleNoise<Octaves<Simplex, 10>, f64, f64, f64>>,
+	pub depth: GameNoise,
 }
 
 impl WorldGenParams {

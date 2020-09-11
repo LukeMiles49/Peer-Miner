@@ -9,3 +9,6 @@ game-state = { path = "../game-state" }
 game-interface = { path = "../game-interface" }
 lib = { path = "../lib" }
 peer-client = { path = "../peer-client" }
+num-traits = "0.2"
+sized_matrix = "0.2"
+higher_order_functions = "0.1"

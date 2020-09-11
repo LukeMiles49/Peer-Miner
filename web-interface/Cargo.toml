@@ -8,6 +8,7 @@ edition = "2018"
 console_error_panic_hook = "0.1"
 wasm-bindgen = { version = "0.2", features = ["nightly"] }
 js-sys = "0.3"
+sized_matrix = "0.2"
 game-interface = { path = "../game-interface" }
 lib = { path = "../lib" }
 

@@ -6,3 +6,4 @@ edition = "2018"
 
 [dependencies]
 lib = { path = "../lib" }
+sized_matrix = "0.2"
