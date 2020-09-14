@@ -13,3 +13,6 @@ pub use fn_writer::*;
 
 mod logger;
 pub use logger::*;
+
+mod random;
+pub use random::*;

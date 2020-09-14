@@ -34,12 +34,20 @@ dependencies = [
 [tasks.wasm-pack-build]
 script = ["wasm-pack build --release --target web -- --features wee_alloc"]
 
+[tasks.snowpack-workaround]
+script_runner = "@duckscript"
+script = [
+	"rm ./pkg/web_wrapper.d.ts",
+	"rm ./pkg/web_wrapper_bg.wasm.d.ts",
+]
+
 [tasks.snowpack-build]
 script = ["npm run-script snowpack-build"]
 
 [tasks.build]
 dependencies = [
 	"wasm-pack-build",
+	"snowpack-workaround",
 	"snowpack-build",
 ]
 
@@ -96,7 +104,7 @@ script = ["rm -rf ./pkg/"]
 
 [tasks.snowpack-clean]
 script_runner = "@duckscript"
-script = ["rm -rf ./build/"]
+script = ["rm -rf ./dist/"]
 
 [tasks.clean]
 dependencies = [
