@@ -9,16 +9,18 @@ use game_interface::{
 
 use game_state::World;
 
-use lib::Logger;
+use lib::{Logger, Colour};
 
 use sized_matrix::Vector;
 use higher_order_functions::Map;
-use num_traits::Zero;
+use num_traits::{Zero, PrimInt, AsPrimitive};
+use noise_fn::{HashNoise, Seedable, NoiseDomain};
 
 pub struct WorldRenderer<TCanvas: Canvas> {
 	canvas: TCanvas,
 	pos: Vector<i32, 2>,
 	size: Vector<u32, 2>,
+	noise: HashNoise,
 }
 
 impl<TCanvas: Canvas> WorldRenderer<TCanvas> {
@@ -32,6 +34,7 @@ impl<TCanvas: Canvas> WorldRenderer<TCanvas> {
 			canvas,
 			pos: Vector::vector([i32::MIN, i32::MIN]) / 2,
 			size,
+			noise: HashNoise::new().seed(1234),
 		}
 	}
 	
@@ -100,7 +103,15 @@ impl<TCanvas: Canvas> WorldRenderer<TCanvas> {
 		let local = pos - self.pos;
 		if local[0] >= 0 && local[0] <= self.size[0] as i32 && local[1] >= 0 && local[1] <= self.size[1] as i32 {
 			let block = world.get(pos);
-			self.canvas.fill_rect(block.colour, local.map(f64::from), Vector::vector([1., 1.]));
+			let mut noise = self.noise.noise(pos);
+			let extra = take_value(&mut noise, block.brightness_variation);
+			let colour = Colour::rgba(
+				block.colour.r + extra + take_value(&mut noise, block.colour_variation),
+				block.colour.g + extra + take_value(&mut noise, block.colour_variation),
+				block.colour.b + extra + take_value(&mut noise, block.colour_variation),
+				block.colour.a,
+			);
+			self.canvas.fill_rect(colour, local.map(f64::from), Vector::vector([1., 1.]));
 		} else {
 			Logger::warning("Drawing outside canvas");
 		}
@@ -108,4 +119,11 @@ impl<TCanvas: Canvas> WorldRenderer<TCanvas> {
 	
 	const SCALE: u32 = 8;
 	const F_SCALE: f64 = Self::SCALE as f64;
+}
+
+fn take_value<T: PrimInt + AsPrimitive<u64>>(value: &mut u64, max: T) -> T where u64: AsPrimitive<T> {
+	let max = max.as_() + 1;
+	let result = *value % max;
+	*value = *value / max;
+	result.as_()
 }

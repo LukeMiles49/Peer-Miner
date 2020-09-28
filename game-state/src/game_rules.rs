@@ -65,24 +65,33 @@ impl GameRules {
 		let mut blocks = Vec::new();
 		let b = &mut blocks;
 		
-		let air = register(b, Block::new(Colour::try_from("#000").unwrap()));
-		let sand = register(b, Block::new(Colour::try_from("#C82").unwrap()));
-		let stone = register(b, Block::new(Colour::try_from("#741").unwrap()));
-		let rock = register(b, Block::new(Colour::try_from("#432").unwrap()));
+		let space = register(b, Block::bg(Colour::try_from("#050505").unwrap(), 10, 0));
+		let star = register(b, Block::bg(Colour::try_from("#999").unwrap(), 100, 100));
+		let sand = register(b, Block::fg(Colour::try_from("#C82").unwrap(), 20, 5));
+		let stone = register(b, Block::fg(Colour::try_from("#742").unwrap(), 40, 10));
+		let rock = register(b, Block::fg(Colour::try_from("#432").unwrap(), 20, 5));
+		let cold_magma = register(b, Block::fg(Colour::try_from("#c51").unwrap(), 25, 0));
+		let warm_magma = register(b, Block::fg(Colour::try_from("#e81").unwrap(), 25, 0));
+		let hot_magma = register(b, Block::fg(Colour::try_from("#eb2").unwrap(), 25, 0));
+		let alien = register(b, Block::fg(Colour::try_from("#834").unwrap(), 40, 40));
 		
 		let mut layers = Vec::new();
 		let l = &mut layers;
 		
-		register(l, Layer::new(f64::NEG_INFINITY, 0., vec![(air, 1.0)]));
-		register(l, Layer::new(0., 200., vec![(sand, 1.0), (stone, 0.01)]));
-		register(l, Layer::new(50., f64::INFINITY, vec![(rock, 1.0)]));
+		register(l, Layer::new(f64::NEG_INFINITY, 0., vec![(space, 0.999), (star, 0.001)]));
+		register(l, Layer::new(0., 200., vec![(sand, 0.99), (stone, 0.01)]));
+		register(l, Layer::new(50., 1100., vec![(rock, 1.0)]));
+		register(l, Layer::new(500., 1700., vec![(cold_magma, 1.0)]));
+		register(l, Layer::new(900., 2100., vec![(warm_magma, 1.0)]));
+		register(l, Layer::new(1300., 2500., vec![(hot_magma, 1.0)]));
+		register(l, Layer::new(1900., f64::INFINITY, vec![(alien, 1.0)]));
 		
 		Self {
 			blocks,
 			layers,
 			depth: AddNoise::new(
 				ScaleNoise::new(
-					Octaves::<_, 10>::new(
+					Octaves::new(
 						Simplex::new(),
 						2.0, 0.5,
 					),
@@ -115,21 +124,23 @@ impl GameRules {
 			} else {
 				for i in 0..layers.len() {
 					let layer = layers[i];
-					let mut max = 0.0;
+					let mut min = f64::INFINITY;
 					for j in 0..layers.len() {
-						let other = layers[j];
 						if j != i {
+							let other = layers[j];
 							let distance =
 								if other.start < layer.start { depth - layer.start }
 								else if other.end > layer.end { layer.end - depth }
 								else { f64::abs(depth - (other.start + other.end) / 2.0) };
-							if distance > max {
-								max = distance;
+							if distance < min {
+								min = distance;
 							}
 						}
 					}
-					for (id, weight) in &layer.blocks.blocks {
-						blocks.push((*id, *weight * max));
+					if min < f64::INFINITY {
+						for (id, weight) in &layer.blocks.blocks {
+							blocks.push((*id, *weight * min));
+						}
 					}
 				}
 				weighted_random(blocks, world.data.noise(pos))

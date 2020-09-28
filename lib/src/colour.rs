@@ -2,14 +2,14 @@ use std::convert::TryFrom;
 
 #[derive(Clone, Copy)]
 pub struct Colour {
-	a: u8,
-	r: u8,
-	g: u8,
-	b: u8,
+	pub a: u8,
+	pub r: u8,
+	pub g: u8,
+	pub b: u8,
 }
 
 impl Colour {
-	pub fn rgba(r: u8, g: u8, b: u8, a: u8) -> Colour {
+	pub const fn rgba(r: u8, g: u8, b: u8, a: u8) -> Colour {
 		Self {
 			a,
 			r,
@@ -18,11 +18,11 @@ impl Colour {
 		}
 	}
 	
-	pub fn rgb(r: u8, g: u8, b: u8) -> Colour {
+	pub const fn rgb(r: u8, g: u8, b: u8) -> Colour {
 		Self::rgba(r, g, b, 255)
 	}
 	
-	pub fn grey(l: u8) -> Colour {
+	pub const fn grey(l: u8) -> Colour {
 		Self::rgb(l, l, l)
 	}
 }
